@@ -1,0 +1,39 @@
+---
+// Sección del menú (ej: Entradas, Fondos, Postres)
+import MenuItem from "./MenuItem.astro";
+import type { Dish } from "./MenuItem.astro";
+
+const { title, dishes = [] } = Astro.props;
+---
+<section class="mb-10">
+  <!-- Zigzag decorativo superior -->
+  <div class="h-3 w-full overflow-hidden">
+    <svg viewBox="0 0 100 6" width="100%" height="100%" preserveAspectRatio="none" class="block">
+      <polygon points="0,6 2,0 4,6 6,0 8,6 10,0 12,6 14,0 16,6 18,0 20,6 22,0 24,6 26,0 28,6 30,0 32,6 34,0 36,6 38,0 40,6 42,0 44,6 46,0 48,6 50,0 52,6 54,0 56,6 58,0 60,6 62,0 64,6 66,0 68,6 70,0 72,6 74,0 76,6 78,0 80,6 82,0 84,6 86,0 88,6 90,0 92,6 94,0 96,6 98,0 100,6" fill="var(--color-primary)" />
+    </svg>
+  </div>
+
+  <!-- Ilustración y título -->
+  <div class="bg-background flex flex-col items-center py-6">
+    <!-- Ilustración simple (puedes cambiarla por un SVG propio) -->
+    <svg width="60" height="36" fill="none" viewBox="0 0 60 36" class="mb-2">
+      <ellipse cx="18" cy="28" rx="15" ry="6" fill="#fff" stroke="var(--color-border)" stroke-width="1.2"/>
+      <ellipse cx="44" cy="28" rx="13" ry="5" fill="#fff" stroke="var(--color-border)" stroke-width="1.2"/>
+      <rect x="10" y="16" width="16" height="8" rx="4" fill="#fff" stroke="var(--color-border)" stroke-width="1.2"/>
+      <rect x="37" y="18" width="14" height="6" rx="3" fill="#fff" stroke="var(--color-border)" stroke-width="1.2"/>
+    </svg>
+    <h2 class="text-2xl font-bold text-center text-text mb-2 font-serif">{title}</h2>
+  </div>
+
+  <!-- Lista de platos -->
+  <ul class="bg-background divide-y divide-dotted divide-border">
+    {dishes.map((dish: Dish) => <MenuItem dish={dish} />)}
+  </ul>
+
+  <!-- Zigzag decorativo inferior -->
+  <div class="h-3 w-full overflow-hidden rotate-180">
+    <svg viewBox="0 0 100 6" width="100%" height="100%" preserveAspectRatio="none" class="block">
+      <polygon points="0,6 2,0 4,6 6,0 8,6 10,0 12,6 14,0 16,6 18,0 20,6 22,0 24,6 26,0 28,6 30,0 32,6 34,0 36,6 38,0 40,6 42,0 44,6 46,0 48,6 50,0 52,6 54,0 56,6 58,0 60,6 62,0 64,6 66,0 68,6 70,0 72,6 74,0 76,6 78,0 80,6 82,0 84,6 86,0 88,6 90,0 92,6 94,0 96,6 98,0 100,6" fill="var(--color-primary)" />
+    </svg>
+  </div>
+</section>

@@ -1,11 +1,92 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+interface Dish {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  available: boolean;
+  image_url?: string;
+  created_at?: string;
+  category?: string;
+}
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
+import MenuSection from "../components/MenuSection.astro";
+import PromoHero from "../components/PromoHero.astro";
+import { supabase } from "../lib/supabaseClient";
+
+// 1. Fetch promo activa
+const { data: promos } = await supabase
+  .from("promos")
+  .select("*")
+  .eq("active", true)
+  .order("start_date", { ascending: false });
+
+// 2. Fetch platos normales
+let { data: dishesData, error } = await supabase
+  .from("dishes")
+  .select("*")
+  .eq("available", true);
+
+let dishes = (dishesData ?? []) as Dish[];
+
+// 3. Si hay promos de tipo descuento, filtra esos platos del menú
+let promoDishIds: string[] = [];
+if (promos && promos.length > 0) {
+  promoDishIds = promos.filter(p => p.type === "descuento" && p.dish_id).map(p => p.dish_id);
+}
+dishes = dishes.filter(
+  (dish) => !promoDishIds.includes(dish.id)
+);
+
+// Categorías (puedes ajustar estos valores)
+const categories = [
+  { key: "pizza", title: "Pizzas" },
+  { key: "postre", title: "Postres" },
+  { key: "bebida", title: "Bebidas" },
+];
+
+const dishesByCategory = Object.fromEntries(
+  categories.map((cat) => [
+    cat.key,
+    dishes.filter((dish) => dish.category === cat.key),
+  ])
+);
 ---
 
 <Layout>
-	<Welcome />
+  <main
+    class="max-w-lg mx-auto p-4 bg-[#fff8f0] min-h-screen font-serif"
+  >
+    {promos && promos.length > 0 && promos.map((promo) => (
+      <PromoHero
+        image={promo.image_url}
+        title={promo.title}
+        subtitle={promo.subtitle}
+        description={promo.description}
+        price={promo.price}
+        options={promo.options}
+      />
+    ))}
+    <h1
+      class="text-3xl font-bold text-center mb-8 font-serif"
+    >
+      Carta del Restaurante
+    </h1>
+    {
+      error && (
+        <p class="text-red-500">Error: {error.message}</p>
+      )
+    }
+    {
+      categories.map((cat) =>
+        dishesByCategory[cat.key]?.length ? (
+          <MenuSection
+            title={cat.title}
+            dishes={dishesByCategory[cat.key] ?? []}
+          />
+        ) : null
+      )
+    }
+  </main>
 </Layout>

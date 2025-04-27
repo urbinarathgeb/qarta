@@ -1,0 +1,27 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout>
+  <main
+    class="max-w-lg mx-auto p-8 min-h-screen flex flex-col items-center bg-background font-serif"
+  >
+    <h1 class="text-3xl font-bold mb-8 text-center">
+      Panel de Administración
+    </h1>
+    <nav class="flex flex-col gap-6 w-full max-w-xs">
+      <a
+        href="/admin/dishes"
+        class="block px-6 py-4 rounded-lg shadow bg-primary-light text-accent font-bold text-center hover:bg-primary transition"
+      >
+        Gestionar Platos
+      </a>
+      <a
+        href="/admin/promos"
+        class="block px-6 py-4 rounded-lg shadow bg-primary-light text-accent font-bold text-center hover:bg-primary transition"
+      >
+        Gestionar Promos
+      </a>
+    </nav>
+  </main>
+</Layout>

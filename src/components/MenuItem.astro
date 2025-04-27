@@ -1,0 +1,33 @@
+---
+// Un plato individual en el menú
+export interface Dish {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  available: boolean;
+  image_url?: string;
+  created_at?: string;
+}
+
+const { dish } = Astro.props;
+
+// Formatea el precio al formato chileno en una sola línea
+const formattedPrice = ((price: number) =>
+  price.toLocaleString("es-CL"))(dish.price);
+---
+
+<li
+  class="flex justify-between py-2 border-b border-border border-dotted last:border-0"
+>
+  <div>
+    <span class="font-semibold text-base">{dish.name}</span>
+    <p class="text-xs text-muted leading-tight">
+      {dish.description}
+    </p>
+  </div>
+  <span
+    class="font-bold text-base text-right whitespace-nowrap"
+    >${formattedPrice}</span
+  >
+</li>
