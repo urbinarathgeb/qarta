@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-// Configura tu Supabase (ajusta la URL y la KEY si es necesario)
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
-console.log("SUPABASE_URL:", supabaseUrl);
-console.log("SUPABASE_KEY:", supabaseKey);
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from "../supabaseClient";
+import StatusFilter from "./StatusFilter";
+import Loader from "./Loader";
+import { formatPriceCLP } from "../utils/format";
+import { useCrudList } from "./useCrudList";
+import { filtrarPorEstado } from "./promoUtils";
+import CrudCardList from "./CrudCardList";
+import type { CrudCardField } from "./CrudCardList";
 
 export interface Dish {
   id?: string;
@@ -84,7 +84,12 @@ const DishForm: React.FC<DishFormProps> = ({ initialValues = {}, onSave, onCance
         {errors.price && <span className="text-red-500 text-xs">{errors.price}</span>}
       </label>
       <label className="font-semibold">Categoría
-        <input type="text" className="mt-1 block w-full border border-border rounded px-3 py-2" value={category} onChange={e => setCategory(e.target.value)} />
+        <select className="mt-1 block w-full border border-border rounded px-3 py-2" value={category} onChange={e => setCategory(e.target.value)} required>
+          <option value="">Selecciona una categoría</option>
+          <option value="pizza">Pizza</option>
+          <option value="bebida">Bebidas</option>
+          <option value="postre">Postre</option>
+        </select>
         {errors.category && <span className="text-red-500 text-xs">{errors.category}</span>}
       </label>
       <label className="inline-flex items-center gap-2">
@@ -107,149 +112,68 @@ const DishForm: React.FC<DishFormProps> = ({ initialValues = {}, onSave, onCance
 };
 
 const AdminDishes: React.FC = () => {
-  const [dishes, setDishes] = useState<Dish[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [showForm, setShowForm] = useState(false);
-  const [editingDish, setEditingDish] = useState<Dish | null>(null);
-  const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const {
+    items: dishes,
+    loading,
+    error,
+    showForm,
+    editingItem,
+    filter,
+    setFilter,
+    handleNew,
+    handleEdit,
+    handleCancelForm,
+    handleSave,
+    handleToggleActive,
+    setShowForm,
+    setEditingItem,
+  } = useCrudList<Dish>({
+    table: "dishes",
+    defaultFilter: "all",
+    activeField: "available",
+  });
 
-  async function fetchDishes() {
-    setLoading(true);
-    const { data, error } = await supabase.from("dishes").select("*").order("created_at", { ascending: false });
-    console.log("FETCHED DATA:", data);
-    console.log("FETCH ERROR:", error);
-    if (error) setError(error.message);
-    else setDishes(data || []);
-    setLoading(false);
-  }
+  // Filtro visual usando helper genérico
+  const dishesToShow = filtrarPorEstado(dishes, filter, showForm, "available");
 
-  useEffect(() => {
-    fetchDishes();
-  }, []);
-
-  function handleNewDish() {
-    setEditingDish(null);
-    setShowForm(true);
-  }
-
-  function handleEditDish(dish: Dish) {
-    setEditingDish(dish);
-    setShowForm(true);
-  }
-
-  function handleCancelForm() {
-    setEditingDish(null);
-    setShowForm(false);
-  }
-
-  async function handleSaveDish(dishData: Partial<Dish>) {
-    // Solo campos editables
-    const allowedFields: (keyof Dish)[] = ['name', 'description', 'price', 'category', 'available', 'image_url'];
-    const fullData = editingDish ? { ...editingDish, ...dishData } : dishData;
-    const updateData: Partial<Dish> = {};
-    for (const key of allowedFields) {
-      if (fullData[key] !== undefined) updateData[key] = fullData[key];
-    }
-    if (typeof updateData.price === 'string') updateData.price = Number(updateData.price);
-    // Si es nuevo plato, forzar available: true por defecto
-    if (!editingDish && updateData.available === undefined) updateData.available = true;
-
-    console.log("GUARDANDO:", updateData, "EDITANDO:", editingDish);
-    if (editingDish && editingDish.id) {
-      const { error } = await supabase.from("dishes").update(updateData).eq("id", editingDish.id);
-      console.log("UPDATE ERROR:", error);
-    } else {
-      const { error } = await supabase.from("dishes").insert([updateData]);
-      console.log("INSERT ERROR:", error);
-    }
-    await fetchDishes();
-    setShowForm(false);
-    setEditingDish(null);
-  }
-
-  async function handleToggleAvailable(dish: Dish) {
-    const { error } = await supabase.from("dishes").update({ available: !dish.available }).eq("id", dish.id);
-    if (error) {
-      alert("Error al cambiar disponibilidad: " + error.message);
-    } else {
-      await fetchDishes();
-    }
-  }
-
-  // Filtro visual
-  let filteredDishes = dishes;
-  if (filter === 'active') filteredDishes = dishes.filter(d => d.available !== false);
-  if (filter === 'inactive') filteredDishes = dishes.filter(d => d.available === false);
-  const dishesToShow = showForm ? dishes.filter(d => d.available !== false) : filteredDishes;
+  // Definición de campos para la card
+  const dishFields: CrudCardField<Dish>[] = [
+    { label: "Nombre", accessor: "name" },
+    { label: "Descripción", accessor: "description" },
+    { label: "Precio", accessor: "price", render: (d) => formatPriceCLP(d.price) },
+    { label: "Categoría", accessor: "category" },
+    { label: "Disponible", accessor: "available", render: (d) => d.available ? <span className="text-green-600">Sí</span> : <span className="text-gray-400">No</span> },
+  ];
 
   return (
-    <main className="max-w-lg mx-auto p-8 min-h-screen bg-background font-serif">
-      <h1 className="text-2xl font-bold mb-6 text-center">Administrar Platos</h1>
-      <p className="text-center text-muted mb-8">Aquí podrás crear, editar y eliminar platos del menú.</p>
+    <main className="min-h-screen bg-background font-serif py-8 w-full">
       {error && <p className="text-red-500 text-center mb-4">Error: {error}</p>}
       {!showForm && (
-        <div className="mb-4 flex gap-2 justify-center">
-          <button onClick={() => setFilter('all')} className={`px-3 py-1 rounded ${filter==='all' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700'}`}>Todos</button>
-          <button onClick={() => setFilter('active')} className={`px-3 py-1 rounded ${filter==='active' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'}`}>Solo activos</button>
-          <button onClick={() => setFilter('inactive')} className={`px-3 py-1 rounded ${filter==='inactive' ? 'bg-gray-400 text-white' : 'bg-gray-100 text-gray-700'}`}>Solo inactivos</button>
-        </div>
+        <StatusFilter value={filter} onChange={setFilter} labels={{all: "Todos", active: "Solo activos", inactive: "Solo inactivos"}} />
       )}
       {showForm ? (
         <DishForm
-          key={editingDish?.id || 'new'}
-          initialValues={editingDish || {}}
-          onSave={handleSaveDish}
+          initialValues={editingItem || {}}
+          onSave={handleSave}
           onCancel={handleCancelForm}
         />
       ) : (
         <>
           <div className="mb-8 flex justify-end">
-            <button className="px-4 py-2 bg-primary text-white rounded font-bold hover:bg-accent transition" onClick={handleNewDish}>+ Nuevo Plato</button>
+            <button className="px-4 py-2 bg-primary text-white rounded font-bold hover:bg-accent transition" onClick={handleNew}>+ Nuevo Plato</button>
           </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-border rounded-lg">
-              <thead>
-                <tr className="bg-primary-light text-accent">
-                  <th className="px-4 py-2 text-left">Nombre</th>
-                  <th className="px-4 py-2 text-left">Descripción</th>
-                  <th className="px-4 py-2 text-left">Precio</th>
-                  <th className="px-4 py-2 text-left">Categoría</th>
-                  <th className="px-4 py-2">Disponible</th>
-                  <th className="px-4 py-2">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr><td colSpan={6} className="px-4 py-8 text-center text-muted">Cargando...</td></tr>
-                ) : dishesToShow.length > 0 ? (
-                  dishesToShow.map((dish) => (
-                    <tr key={dish.id} className="border-t border-border">
-                      <td className="px-4 py-2 font-semibold">{dish.name}</td>
-                      <td className="px-4 py-2 text-sm text-muted">{dish.description}</td>
-                      <td className="px-4 py-2">${dish.price.toLocaleString('es-CL')}</td>
-                      <td className="px-4 py-2 text-xs">{dish.category ?? '-'}</td>
-                      <td className="px-4 py-2 text-center">
-                        <button className={`px-2 py-1 rounded text-xs font-bold ${dish.available ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'}`}
-                          onClick={() => handleToggleAvailable(dish)}>
-                          {dish.available ? 'Activo' : 'Inactivo'}
-                        </button>
-                      </td>
-                      <td className="px-4 py-2 flex gap-2">
-                        <button className="px-2 py-1 bg-primary-light text-accent rounded hover:bg-primary text-xs" onClick={() => handleEditDish(dish)}>Editar</button>
-                        {/* Eliminar irá aquí */}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr><td colSpan={6} className="px-4 py-8 text-center text-muted">No hay platos registrados.</td></tr>
-                )}
-              </tbody>
-            </table>
+          <div className="w-full max-w-screen-2xl mx-auto px-4">
+            <CrudCardList
+              items={dishesToShow}
+              fields={dishFields}
+              loading={loading}
+              onEdit={handleEdit}
+              onToggleActive={handleToggleActive}
+              emptyMessage="No hay platos registrados."
+            />
           </div>
         </>
       )}
-      <a href="/admin" className="block mt-10 text-primary hover:underline text-center">Volver al panel principal</a>
     </main>
   );
 };

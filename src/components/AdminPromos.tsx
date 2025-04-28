@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from "../supabaseClient";
+import StatusFilter from "./StatusFilter";
+import Loader from "./Loader";
+import { formatPriceCLP, formatDate } from "../utils/format";
+import CrudCardList from "./CrudCardList";
+import type { CrudCardField } from "./CrudCardList";
+import { filtrarPorEstado } from "./promoUtils";
+import { useCrudList } from "./useCrudList";
 
 export interface Promo {
   id?: string;
@@ -166,7 +169,7 @@ const PromoForm: React.FC<PromoFormProps> = ({ initialValues = {}, onSave, onCan
           {(() => {
             const selected = dishOptions.find(d => d.id === dishId);
             return selected && selected.price !== undefined ? (
-              <div className="text-xs text-muted mt-1">Precio original: ${selected.price.toLocaleString("es-CL")}</div>
+              <div className="text-xs text-muted mt-1">Precio original: {formatPriceCLP(selected.price)}</div>
             ) : null;
           })()}
           {errors.price && <span className="text-red-500 text-xs">{errors.price}</span>}
@@ -204,144 +207,70 @@ const PromoForm: React.FC<PromoFormProps> = ({ initialValues = {}, onSave, onCan
 };
 
 const AdminPromos: React.FC = () => {
-  const [promos, setPromos] = useState<Promo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [showForm, setShowForm] = useState(false);
-  const [editingPromo, setEditingPromo] = useState<Promo | null>(null);
-  const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const {
+    items: promos,
+    loading,
+    error,
+    showForm,
+    editingItem,
+    filter,
+    setFilter,
+    handleNew,
+    handleEdit,
+    handleCancelForm,
+    handleSave,
+    handleToggleActive,
+    setShowForm,
+    setEditingItem,
+  } = useCrudList<Promo>({
+    table: "promos",
+    defaultFilter: "all",
+    activeField: "active",
+  });
 
-  async function fetchPromos() {
-    setLoading(true);
-    const { data, error } = await supabase.from("promos").select("*").order("start_date", { ascending: false });
-    if (error) setError(error.message);
-    else setPromos(data || []);
-    setLoading(false);
-  }
+  // Filtro visual (ahora usando helper genérico)
+  const promosToShow = filtrarPorEstado(promos, filter, showForm, "active");
 
-  useEffect(() => {
-    fetchPromos();
-  }, []);
-
-  function handleNewPromo() {
-    setEditingPromo(null);
-    setShowForm(true);
-  }
-
-  function handleEditPromo(promo: Promo) {
-    setEditingPromo(promo);
-    setShowForm(true);
-  }
-
-  function handleCancelForm() {
-    setEditingPromo(null);
-    setShowForm(false);
-  }
-
-  async function handleSavePromo(promoData: Partial<Promo>) {
-    const allowedFields: (keyof Promo)[] = [
-      'title', 'description', 'image_url', 'start_date', 'end_date', 'type', 'dish_id', 'price', 'active'
-    ];
-    const fullData = editingPromo ? { ...editingPromo, ...promoData } : promoData;
-    const updateData: Partial<Promo> = {};
-    for (const key of allowedFields) {
-      if (fullData[key] !== undefined) updateData[key] = fullData[key];
-    }
-    if (!editingPromo && updateData.active === undefined) updateData.active = true;
-    if (typeof updateData.price === 'string') updateData.price = Number(updateData.price);
-
-    if (editingPromo && editingPromo.id) {
-      const { error } = await supabase.from("promos").update(updateData).eq("id", editingPromo.id);
-      if (error) alert("Error al actualizar promo: " + error.message);
-    } else {
-      const { error } = await supabase.from("promos").insert([updateData]);
-      if (error) alert("Error al crear promo: " + error.message);
-    }
-    await fetchPromos();
-    setShowForm(false);
-    setEditingPromo(null);
-  }
-
-  async function handleToggleActive(promo: Promo) {
-    const { error } = await supabase.from("promos").update({ active: !promo.active }).eq("id", promo.id);
-    if (error) {
-      alert("Error al cambiar estado: " + error.message);
-    } else {
-      await fetchPromos();
-    }
-  }
-
-  // Filtro visual
-  let filteredPromos = promos;
-  if (filter === 'active') filteredPromos = promos.filter(p => p.active !== false);
-  if (filter === 'inactive') filteredPromos = promos.filter(p => p.active === false);
-  const promosToShow = showForm ? promos.filter(p => p.active !== false) : filteredPromos;
+  // Definición de campos para la card
+  const promoFields: CrudCardField<Promo>[] = [
+    { label: "Título", accessor: "title" },
+    { label: "Tipo", accessor: "type" },
+    { label: "Inicio", accessor: "start_date", render: (p) => formatDate(p.start_date) },
+    { label: "Fin", accessor: "end_date", render: (p) => formatDate(p.end_date) },
+    { label: "Activo", accessor: "active", render: (p) => p.active ? <span className="text-green-600">Sí</span> : <span className="text-gray-400">No</span> },
+  ];
 
   return (
-    <main className="max-w-lg mx-auto p-8 min-h-screen bg-background font-serif">
+    <main className="min-h-screen bg-background font-serif py-8 w-full">
       {error && <p className="text-red-500 text-center mb-4">Error: {error}</p>}
       {!showForm && (
         <div className="mb-4 flex gap-2 justify-center">
-          <button onClick={() => setFilter('all')} className={`px-3 py-1 rounded ${filter==='all' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700'}`}>Todas</button>
-          <button onClick={() => setFilter('active')} className={`px-3 py-1 rounded ${filter==='active' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'}`}>Solo activas</button>
-          <button onClick={() => setFilter('inactive')} className={`px-3 py-1 rounded ${filter==='inactive' ? 'bg-gray-400 text-white' : 'bg-gray-100 text-gray-700'}`}>Solo inactivas</button>
+          <StatusFilter value={filter} onChange={setFilter} labels={{all: "Todas", active: "Solo activas", inactive: "Solo inactivas"}} />
         </div>
       )}
       {showForm ? (
         <PromoForm
-          key={editingPromo?.id || 'new'}
-          initialValues={editingPromo || {}}
-          onSave={handleSavePromo}
+          initialValues={editingItem || {}}
+          onSave={handleSave}
           onCancel={handleCancelForm}
         />
       ) : (
         <>
-          <div className="mb-8 flex justify-end">
-            <button className="px-4 py-2 bg-primary text-white rounded font-bold hover:bg-accent transition" onClick={handleNewPromo}>+ Nueva Promo</button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-border rounded-lg">
-              <thead>
-                <tr className="bg-primary-light text-accent">
-                  <th className="px-4 py-2 text-left">Título</th>
-                  <th className="px-4 py-2 text-left">Tipo</th>
-                  <th className="px-4 py-2 text-left">Inicio</th>
-                  <th className="px-4 py-2 text-left">Fin</th>
-                  <th className="px-4 py-2">Activa</th>
-                  <th className="px-4 py-2">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr><td colSpan={6} className="px-4 py-8 text-center text-muted">Cargando...</td></tr>
-                ) : promosToShow.length > 0 ? (
-                  promosToShow.map((promo) => (
-                    <tr key={promo.id} className="border-t border-border">
-                      <td className="px-4 py-2 font-semibold">{promo.title}</td>
-                      <td className="px-4 py-2 text-xs">{promo.type ?? '-'}</td>
-                      <td className="px-4 py-2 text-xs">{promo.start_date ? promo.start_date.slice(0, 10) : '-'}</td>
-                      <td className="px-4 py-2 text-xs">{promo.end_date ? promo.end_date.slice(0, 10) : '-'}</td>
-                      <td className="px-4 py-2 text-center">
-                        <button className={`px-2 py-1 rounded text-xs font-bold ${promo.active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'}`}
-                          onClick={() => handleToggleActive(promo)}>
-                          {promo.active ? 'Activa' : 'Inactiva'}
-                        </button>
-                      </td>
-                      <td className="px-4 py-2 flex gap-2">
-                        <button className="px-2 py-1 bg-primary-light text-accent rounded hover:bg-primary text-xs" onClick={() => handleEditPromo(promo)}>Editar</button>
-                        {/* Aquí puedes agregar botón de eliminar si lo deseas */}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr><td colSpan={6} className="px-4 py-8 text-center text-muted">No hay promociones registradas.</td></tr>
-                )}
-              </tbody>
-            </table>
+          <button className="mb-4 px-4 py-2 bg-primary text-white rounded font-bold hover:bg-accent transition" onClick={handleNew}>
+            Nueva promoción
+          </button>
+          <div className="w-full max-w-screen-2xl mx-auto px-4">
+            <CrudCardList
+              items={promosToShow}
+              fields={promoFields}
+              loading={loading}
+              onEdit={handleEdit}
+              onToggleActive={handleToggleActive}
+              emptyMessage="No hay promociones"
+            />
           </div>
         </>
       )}
-      <a href="/admin" className="block mt-10 text-primary hover:underline text-center">Volver al panel principal</a>
     </main>
   );
 };
