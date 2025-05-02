@@ -1,0 +1,9 @@
+---
+const { w, h } = Astro.props;
+---
+
+<div class={`w-${w} h-${h} grid grid-cols-3`}>
+  <div class="bg-green"></div>
+  <div class="bg-text"></div>
+  <div class="bg-red"></div>
+</div>

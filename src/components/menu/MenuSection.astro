@@ -1,0 +1,31 @@
+---
+// Sección del menú (ej: Entradas, Fondos, Postres)
+import MenuItem from "@/components/menu/MenuItem.astro";
+import Flag from "@/components/ui/Flag.astro";
+import type { Dish } from "@/components/menu/MenuItem.astro";
+
+const { title, dishes, Icon = [] } = Astro.props;
+
+const formattedTitle =
+  title.charAt(0).toUpperCase() +
+  title.slice(1).toLowerCase();
+---
+
+<section class="w-full">
+  <!-- Ilustración y título -->
+  <div class="py-4 flex flex-col gap-4 items-center">
+    <Icon class="h-16 text-text" />
+    <!-- <MenuIcon /> -->
+    <h2 class="title-lg">
+      {formattedTitle}
+    </h2>
+    <Flag w="44" h="0.5" />
+
+    <!-- Lista de platos -->
+    <ul
+      class="border-y border-dotted border-text divide-y divide-dotted divide-border divide-text w-full"
+    >
+      {dishes.map((dish: Dish) => <MenuItem dish={dish} />)}
+    </ul>
+  </div>
+</section>

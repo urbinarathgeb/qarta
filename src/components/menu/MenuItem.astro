@@ -17,17 +17,16 @@ const formattedPrice = ((price: number) =>
   price.toLocaleString("es-CL"))(dish.price);
 ---
 
-<li
-  class="flex justify-between py-2 border-b border-border border-dotted last:border-0"
->
-  <div>
-    <span class="font-semibold text-base">{dish.name}</span>
-    <p class="text-xs text-muted leading-tight">
-      {dish.description}
+<li class="flex flex-col py-2">
+  <div class="flex justify-between">
+    <h3 class="title-md">
+      {dish.name}
+    </h3>
+    <p class="text-description font-bold">
+      ${formattedPrice}
     </p>
   </div>
-  <span
-    class="font-bold text-base text-right whitespace-nowrap"
-    >${formattedPrice}</span
-  >
+  <p class="text-description">
+    {dish.description}
+  </p>
 </li>

@@ -1,4 +1,13 @@
 ---
+import Layout from "@/layouts/Layout.astro";
+import MenuSection from "@/components/menu/MenuSection.astro";
+import PromoHero from "@/components/menu/PromoHero.astro";
+import { supabase } from "@/lib/supabaseClient";
+import Bebida from "@/assets/Bebida.svg";
+import Cerveza from "@/assets/Cerveza.svg";
+import Pasta from "@/assets/Pasta.svg";
+import Pizza from "@/assets/Pizza.svg";
+
 interface Dish {
   id: string;
   name: string;
@@ -9,11 +18,6 @@ interface Dish {
   created_at?: string;
   category?: string;
 }
-
-import Layout from "../layouts/Layout.astro";
-import MenuSection from "../components/MenuSection.astro";
-import PromoHero from "../components/PromoHero.astro";
-import { supabase } from "../lib/supabaseClient";
 
 // 1. Fetch promo activa
 const { data: promos } = await supabase
@@ -30,63 +34,78 @@ let { data: dishesData, error } = await supabase
 
 let dishes = (dishesData ?? []) as Dish[];
 
-// 3. Si hay promos de tipo descuento, filtra esos platos del menú
+// 3. Fetch a categorías
+let { data: enumCategory, error: enumError } =
+  await supabase.rpc("get_enumcategories_values");
+if (enumError) console.error(enumError);
+// else console.log(enumCategory);
+
+// Section icon
+const sectionIcon = {
+  pizza: Pizza,
+  bebida: Bebida,
+  cerveza: Cerveza,
+  pasta: Pasta,
+} as const;
+
+// 4. Si hay promos de tipo descuento, filtra esos platos del menú
 let promoDishIds: string[] = [];
 if (promos && promos.length > 0) {
-  promoDishIds = promos.filter(p => p.type === "descuento" && p.dish_id).map(p => p.dish_id);
+  promoDishIds = promos
+    .filter((p) => p.type === "descuento" && p.dish_id)
+    .map((p) => p.dish_id);
 }
 dishes = dishes.filter(
   (dish) => !promoDishIds.includes(dish.id)
 );
 
-// Categorías (puedes ajustar estos valores)
-const categories = [
-  { key: "pizza", title: "Pizzas" },
-  { key: "postre", title: "Postres" },
-  { key: "bebida", title: "Bebidas" },
-];
+// 5. Agrupar platos por categoría
 
-const dishesByCategory = Object.fromEntries(
-  categories.map((cat) => [
-    cat.key,
-    dishes.filter((dish) => dish.category === cat.key),
+let dishesByCategory = Object.fromEntries(
+  (enumCategory as string[]).map((cat) => [
+    cat,
+    dishes.filter((dish) => dish.category === cat),
   ])
 );
 ---
 
 <Layout>
-  <main
-    class="max-w-lg mx-auto p-4 bg-[#fff8f0] min-h-screen font-serif"
-  >
-    {promos && promos.length > 0 && promos.map((promo) => (
-      <PromoHero
-        image={promo.image_url}
-        title={promo.title}
-        subtitle={promo.subtitle}
-        description={promo.description}
-        price={promo.price}
-        options={promo.options}
-      />
-    ))}
-    <h1
-      class="text-3xl font-bold text-center mb-8 font-serif"
-    >
+  <main class="w-full">
+    <h1 class="title-xl text-center">
       Carta del Restaurante
     </h1>
+    {
+      promos &&
+        promos.length > 0 &&
+        promos.map((promo) => (
+          <PromoHero
+            image={promo.image_url}
+            title={promo.title}
+            subtitle={promo.subtitle}
+            description={promo.description}
+            price={promo.price}
+            options={promo.options}
+          />
+        ))
+    }
     {
       error && (
         <p class="text-red-500">Error: {error.message}</p>
       )
     }
     {
-      categories.map((cat) =>
-        dishesByCategory[cat.key]?.length ? (
+      enumCategory.map((cat: string) => {
+        let icon =
+          sectionIcon[cat as keyof typeof sectionIcon];
+        console.log(icon);
+        return dishesByCategory[cat]?.length ? (
           <MenuSection
-            title={cat.title}
-            dishes={dishesByCategory[cat.key] ?? []}
+            title={cat}
+            dishes={dishesByCategory[cat] ?? []}
+            Icon={icon}
           />
-        ) : null
-      )
-    }
+        ) : null;
+      })
+    };
   </main>
 </Layout>

@@ -1,13 +1,13 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import AdminAuthWrapper from "../../components/AdminAuthWrapper";
-import AdminPromos from "../../components/AdminPromos";
+import AdminAuthWrapper from "@/components/admin/AdminAuthWrapper";
+import AdminPromos from "@/components/admin/AdminPromos";
+import AdminLayout from "@/layouts/AdminLayout.astro";
 ---
 
-<Layout>
+<AdminLayout>
   <AdminAuthWrapper client:load>
     <main
-      class="w-full max-w-screen-2xl mx-auto px-4 min-h-screen bg-background font-serif py-8"
+      class="col-start-2 w-full max-w-screen-2xl mx-auto px-4 min-h-screen bg-background font-serif py-8"
     >
       <h1 class="text-2xl font-bold mb-6 text-center">
         Administrar Promos
@@ -24,4 +24,4 @@ import AdminPromos from "../../components/AdminPromos";
       >
     </main>
   </AdminAuthWrapper>
-</Layout>
+</AdminLayout>

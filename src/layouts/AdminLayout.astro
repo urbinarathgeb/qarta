@@ -1,0 +1,23 @@
+---
+import AdminAuthWrapper from "@/components/admin/AdminAuthWrapper";
+import "@/styles/global.css";
+import SidebarWrapper from "@/components/admin/SidebarWrapper";
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+
+    <meta name="generator" content={Astro.generator} />
+    <title>Panel de Administración</title>
+  </head>
+  <body
+    class="w-screen h-screen grid grid-cols-[240px_auto]"
+  >
+    <AdminAuthWrapper client:load>
+      <slot />
+    </AdminAuthWrapper>
+  </body>
+</html>
