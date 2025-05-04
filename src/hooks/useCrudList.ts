@@ -27,12 +27,21 @@ export function useCrudList<T = any>({
 
   async function fetchItems() {
     setLoading(true);
+    setError(null);
     try {
       const { data, error } = await supabase.from(table).select("*").order("created_at", { ascending: false });
-      if (error) setError(error.message);
-      else setItems(mapItem ? data.map(mapItem) : data || []);
+      if (error) {
+        setError(error.message);
+        setItems([]); // Limpia items si hay error
+        console.error(`Error al obtener datos de ${table}:`, error.message);
+      } else {
+        setItems(mapItem ? data.map(mapItem) : data || []);
+        setError(null);
+      }
     } catch (err) {
       setError("Error inesperado al obtener datos");
+      setItems([]);
+      console.error(`Error inesperado al obtener datos de ${table}:`, err);
     }
     setLoading(false);
   }
@@ -40,7 +49,7 @@ export function useCrudList<T = any>({
   useEffect(() => {
     fetchItems();
     // eslint-disable-next-line
-  }, []);
+  }, [table]);
 
   function handleNew() {
     setEditingItem(null);
@@ -71,14 +80,17 @@ export function useCrudList<T = any>({
       } else {
         ({ error } = await supabase.from(table).insert([dataToSave]));
       }
-      if (error) setError(error.message);
-      else {
+      if (error) {
+        setError(error.message);
+        console.error(`Error al guardar en ${table}:`, error.message);
+      } else {
         await fetchItems();
         setShowForm(false);
         setEditingItem(null);
       }
     } catch (err) {
       setError("Error inesperado al guardar");
+      console.error(`Error inesperado al guardar en ${table}:`, err);
     }
     setLoading(false);
   }
@@ -91,10 +103,15 @@ export function useCrudList<T = any>({
         .from(table)
         .update({ [activeField]: !(item as any)[activeField] })
         .eq("id", (item as any).id);
-      if (error) setError(error.message);
-      else await fetchItems();
+      if (error) {
+        setError(error.message);
+        console.error(`Error al cambiar estado en ${table}:`, error.message);
+      } else {
+        await fetchItems();
+      }
     } catch (err) {
       setError("Error inesperado al cambiar estado");
+      console.error(`Error inesperado al cambiar estado en ${table}:`, err);
     }
     setLoading(false);
   }

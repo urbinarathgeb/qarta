@@ -4,8 +4,8 @@ import StatusFilter from "@/components/admin/StatusFilter";
 import { formatPriceCLP, formatDate } from "@/utils/format";
 import CrudCardList from "@/components/admin/CrudCardList";
 import type { CrudCardField } from "@/components/admin/CrudCardList";
-import { filtrarPorEstado } from "@/components/promoUtils";
-import { useCrudList } from "@/components/useCrudList";
+import { filtrarPorEstado } from "@/lib/promoUtils";
+import { useCrudList } from "@/hooks/useCrudList";
 
 export interface Promo {
   id?: string;

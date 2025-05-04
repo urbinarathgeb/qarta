@@ -19,3 +19,9 @@ export function filtrarPorEstado<T extends Record<string, any>>(
   if (filter === 'inactive') filtered = items.filter(i => i[activeField] === false);
   return showForm ? items.filter(i => i[activeField] !== false) : filtered;
 }
+
+// Exporta el tipo Filtro para usarlo en tus componentes
+export type Filtro =
+  | { tipo: "todos" }
+  | { tipo: "estado"; valor: "activos" | "no-activos" }
+  | { tipo: "categoria"; valor: string };

@@ -1,56 +1,17 @@
 import React, { useState } from "react";
-import { Home, Settings, Menu } from "lucide-react";
 import clsx from "clsx";
+import type { Filtro } from "@/lib/promoUtils";
 
-// Subcomponente para cada ítem del sidebar
-type SidebarItemProps = {
-  icon: React.ReactNode;
-  label: string;
-  collapsed: boolean;
-};
+type Seccion = "dishes" | "promos";
 
-const SidebarItem: React.FC<SidebarItemProps> = ({
-  icon,
-  label,
-  collapsed,
-}) => {
-  return (
-    <div className="flex items-center gap-2 px-4 py-3 hover:bg-gray-700 cursor-pointer">
-      <span className="text-xl">{icon}</span>
-      {!collapsed && (
-        <span className="whitespace-nowrap">{label}</span>
-      )}
-    </div>
-  );
-};
+interface Props {
+  seccion: Seccion;
+  setSeccion: (s: Seccion) => void;
+  filtro: Filtro;
+  setFiltro: (f: Filtro) => void;
+}
 
-// Datos del menú
-const sidebarSections = [
-  {
-    title: "Menú",
-    items: [
-      { label: "Activas", icon: <Home size={20} /> },
-      { label: "No Activas", icon: <Home size={20} /> },
-      {
-        label: "Todos los platos",
-        icon: <Home size={20} />,
-      },
-    ],
-  },
-  {
-    title: "Promociones",
-    items: [
-      {
-        label: "Todas las promos",
-        icon: <Settings size={20} />,
-      },
-      { label: "Activas", icon: <Settings size={20} /> },
-      { label: "No activas", icon: <Settings size={20} /> },
-    ],
-  },
-];
-
-const Sidebar: React.FC = () => {
+const AdminNavbar: React.FC<Props> = ({ seccion, setSeccion, filtro, setFiltro }) => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -66,31 +27,69 @@ const Sidebar: React.FC = () => {
           onClick={() => setCollapsed(!collapsed)}
           className="ml-auto text-white"
         >
-          <Menu size={20} />
+          <span>☰</span>
         </button>
       </div>
-
-      <nav className="flex flex-col mt-4">
-        {sidebarSections.map((section) => (
-          <div key={section.title} className="mb-4">
-            {!collapsed && (
-              <h2 className="px-4 text-sm text-gray-400 uppercase tracking-wider mb-1">
-                {section.title}
-              </h2>
-            )}
-            {section.items.map((item) => (
-              <SidebarItem
-                key={item.label}
-                icon={item.icon}
-                label={item.label}
-                collapsed={collapsed}
-              />
-            ))}
-          </div>
-        ))}
+      <nav className="flex flex-col mt-4 gap-2">
+        <h2 className="px-4 text-xs text-gray-400 uppercase">Menú</h2>
+        <button
+          className={clsx("px-4 py-2 text-left", seccion === "dishes" && filtro.tipo === "todos" && "bg-gray-700")}
+          onClick={() => { setSeccion("dishes"); setFiltro({ tipo: "todos" }); }}
+        >
+          Todos los platos
+        </button>
+        <button
+          className={clsx("px-4 py-2 text-left", seccion === "dishes" && filtro.tipo === "estado" && filtro.valor === "activos" && "bg-gray-700")}
+          onClick={() => { setSeccion("dishes"); setFiltro({ tipo: "estado", valor: "activos" }); }}
+        >
+          Activos
+        </button>
+        <button
+          className={clsx("px-4 py-2 text-left", seccion === "dishes" && filtro.tipo === "estado" && filtro.valor === "no-activos" && "bg-gray-700")}
+          onClick={() => { setSeccion("dishes"); setFiltro({ tipo: "estado", valor: "no-activos" }); }}
+        >
+          No Activos
+        </button>
+        <button
+          className={clsx("px-4 py-2 text-left", seccion === "dishes" && filtro.tipo === "categoria" && filtro.valor === "pizza" && "bg-gray-700")}
+          onClick={() => { setSeccion("dishes"); setFiltro({ tipo: "categoria", valor: "pizza" }); }}
+        >
+          Pizzas
+        </button>
+        <button
+          className={clsx("px-4 py-2 text-left", seccion === "dishes" && filtro.tipo === "categoria" && filtro.valor === "bebida" && "bg-gray-700")}
+          onClick={() => { setSeccion("dishes"); setFiltro({ tipo: "categoria", valor: "bebida" }); }}
+        >
+          Bebidas
+        </button>
+        <button
+          className={clsx("px-4 py-2 text-left", seccion === "dishes" && filtro.tipo === "categoria" && filtro.valor === "cerveza" && "bg-gray-700")}
+          onClick={() => { setSeccion("dishes"); setFiltro({ tipo: "categoria", valor: "cerveza" }); }}
+        >
+          Cervezas
+        </button>
+        <h2 className="px-4 text-xs text-gray-400 uppercase mt-4">Promos</h2>
+        <button
+          className={clsx("px-4 py-2 text-left", seccion === "promos" && filtro.tipo === "todos" && "bg-gray-700")}
+          onClick={() => { setSeccion("promos"); setFiltro({ tipo: "todos" }); }}
+        >
+          Todas las promos
+        </button>
+        <button
+          className={clsx("px-4 py-2 text-left", seccion === "promos" && filtro.tipo === "estado" && filtro.valor === "activos" && "bg-gray-700")}
+          onClick={() => { setSeccion("promos"); setFiltro({ tipo: "estado", valor: "activos" }); }}
+        >
+          Activas
+        </button>
+        <button
+          className={clsx("px-4 py-2 text-left", seccion === "promos" && filtro.tipo === "estado" && filtro.valor === "no-activos" && "bg-gray-700")}
+          onClick={() => { setSeccion("promos"); setFiltro({ tipo: "estado", valor: "no-activos" }); }}
+        >
+          No activas
+        </button>
       </nav>
     </aside>
   );
 };
 
-export default Sidebar;
+export default AdminNavbar;

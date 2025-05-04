@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import StatusFilter from "@/components/admin/StatusFilter";
 import { formatPriceCLP } from "@/utils/format";
-import { useCrudList } from "@/components/useCrudList";
-import { filtrarPorEstado } from "@/components/promoUtils";
+import { useCrudList } from "@/hooks/useCrudList";
+import { filtrarPorEstado } from "@/lib/promoUtils";
 import CrudCardList from "@/components/admin/CrudCardList";
 import type { CrudCardField } from "@/components/admin/CrudCardList";
 
@@ -201,7 +201,7 @@ const DishForm: React.FC<DishFormProps> = ({
   );
 };
 
-const AdminDishes: React.FC = () => {
+const AdminDishes: React.FC<{ filtro: any }> = ({ filtro }) => {
   const {
     items: dishes,
     loading,
@@ -223,13 +223,17 @@ const AdminDishes: React.FC = () => {
     activeField: "available",
   });
 
-  // Filtro visual usando helper genérico
-  const dishesToShow = filtrarPorEstado(
-    dishes,
-    filter,
-    showForm,
-    "available"
-  );
+  // Aplica el filtro recibido
+  const dishesFiltrados = dishes.filter((dish) => {
+    if (filtro.tipo === "todos") return true;
+    if (filtro.tipo === "estado") {
+      return filtro.valor === "activos" ? dish.available : !dish.available;
+    }
+    if (filtro.tipo === "categoria") {
+      return dish.category === filtro.valor;
+    }
+    return true;
+  });
 
   // Definición de campos para la card
   const dishFields: CrudCardField<Dish>[] = [
@@ -289,7 +293,7 @@ const AdminDishes: React.FC = () => {
           </div>
           <div className="w-full max-w-screen-2xl mx-auto px-4">
             <CrudCardList
-              items={dishesToShow}
+              items={dishesFiltrados}
               fields={dishFields}
               loading={loading}
               onEdit={handleEdit}
