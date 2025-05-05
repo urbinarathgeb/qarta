@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { DishCategory, type DishFormProps } from '@/types/dish';
-import { DISH_CATEGORY_OPTIONS } from '@/constants/dishes';
+import type { Dish, DishFormProps } from '@/types/dish';
+import { DishCategory } from '@/types/dish';
+import { Button } from '@/components/ui';
+import { FormField } from '@/components/ui/molecules';
 
 /**
- * Componente de formulario para crear o editar platos
+ * Formulario para crear y editar platos
  */
-const DishForm: React.FC<DishFormProps> = ({ initialValues = {}, onSave, onCancel }) => {
+const DishForm: React.FC<DishFormProps> = ({
+  initialValues = {},
+  onSave,
+  onCancel,
+}) => {
   const [name, setName] = useState(initialValues.name || '');
   const [description, setDescription] = useState(initialValues.description || '');
   const [price, setPrice] = useState(initialValues.price || 0);
@@ -15,6 +21,7 @@ const DishForm: React.FC<DishFormProps> = ({ initialValues = {}, onSave, onCance
   const [errors, setErrors] = useState<{
     [key: string]: string;
   }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setName(initialValues.name || '');
@@ -35,112 +42,178 @@ const DishForm: React.FC<DishFormProps> = ({ initialValues = {}, onSave, onCance
     return newErrors;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const validation = validate();
     setErrors(validation);
+
     if (Object.keys(validation).length > 0) return;
-    // Solo enviar campos válidos
-    onSave({
-      name: name.trim(),
-      description: description.trim(),
-      price: Number(price),
-      category,
-      available,
-      image_url: imageUrl.trim() || undefined,
-    });
+
+    // Mostrar indicador de carga
+    setIsSubmitting(true);
+
+    try {
+      console.log("Guardando plato:", {
+        name: name.trim(),
+        description: description.trim(),
+        price: Number(price),
+        category,
+        available,
+        image_url: imageUrl.trim() || undefined,
+      });
+
+      await onSave({
+        name: name.trim(),
+        description: description.trim(),
+        price: Number(price),
+        category,
+        available,
+        image_url: imageUrl.trim() || undefined,
+      });
+    } catch (error) {
+      console.error('Error al guardar plato:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
+  const categoryOptions = Object.values(DishCategory).map(cat => ({
+    value: cat,
+    label: cat.charAt(0).toUpperCase() + cat.slice(1)
+  }));
+
   return (
-    <form
-      className="bg-white border border-border rounded-lg p-6 flex flex-col gap-4 w-full max-w-md mx-auto"
-      onSubmit={handleSubmit}
-    >
-      <h2 className="text-xl font-bold mb-2">
-        {initialValues.id ? 'Editar Plato' : 'Nuevo Plato'}
-      </h2>
-      <label className="font-semibold">
-        Nombre
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <FormField
+        label="Nombre"
+        htmlFor="name"
+        error={errors.name}
+        required
+      >
         <input
+          id="name"
           type="text"
-          className="mt-1 block w-full border border-border rounded px-3 py-2"
+          className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
         />
-        {errors.name && <span className="text-red-500 text-xs">{errors.name}</span>}
-      </label>
-      <label className="font-semibold">
-        Descripción
+      </FormField>
+
+      <FormField
+        label="Descripción"
+        htmlFor="description"
+        error={errors.description}
+        required
+      >
         <textarea
-          className="mt-1 block w-full border border-border rounded px-3 py-2"
-          rows={2}
+          id="description"
+          className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+          rows={3}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-        {errors.description && <span className="text-red-500 text-xs">{errors.description}</span>}
-      </label>
-      <label className="font-semibold">
-        Precio
+      </FormField>
+
+      <FormField
+        label="Precio"
+        htmlFor="price"
+        error={errors.price}
+        required
+      >
         <input
+          id="price"
           type="number"
           min={0}
           step={1}
-          className="mt-1 block w-full border border-border rounded px-3 py-2"
+          className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
           value={price}
           onChange={(e) => setPrice(Number(e.target.value))}
-          required
         />
-        {errors.price && <span className="text-red-500 text-xs">{errors.price}</span>}
-      </label>
-      <label className="font-semibold">
-        Categoría
+      </FormField>
+
+      <FormField
+        label="Categoría"
+        htmlFor="category"
+        error={errors.category}
+        required
+      >
         <select
-          className="mt-1 block w-full border border-border rounded px-3 py-2"
+          id="category"
+          className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
           value={category || ''}
           onChange={(e) => setCategory(e.target.value as DishCategory)}
-          required
         >
           <option value="">Selecciona una categoría</option>
-          {DISH_CATEGORY_OPTIONS.map((option) => (
+          {categoryOptions.map(option => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
           ))}
         </select>
-        {errors.category && <span className="text-red-500 text-xs">{errors.category}</span>}
-      </label>
-      <label className="inline-flex items-center gap-2">
+      </FormField>
+
+      <FormField
+        label="Imagen"
+        htmlFor="image-url"
+        tip="URL de una imagen para mostrar con el plato (opcional)"
+      >
         <input
-          type="checkbox"
-          checked={available}
-          onChange={(e) => setAvailable(e.target.checked)}
-        />
-        Disponible
-      </label>
-      <label className="font-semibold">
-        URL de imagen (opcional)
-        <input
+          id="image-url"
           type="url"
-          className="mt-1 block w-full border border-border rounded px-3 py-2"
+          className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
           value={imageUrl}
           onChange={(e) => setImageUrl(e.target.value)}
+          placeholder="https://ejemplo.com/imagen.jpg"
         />
-      </label>
-      <div className="flex gap-4 mt-4">
-        <button
-          type="submit"
-          className="flex-1 px-4 py-2 bg-primary text-white rounded font-bold hover:bg-accent transition"
-        >
-          {initialValues.id ? 'Guardar Cambios' : 'Crear Plato'}
-        </button>
-        <button
-          type="button"
-          className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded font-bold hover:bg-gray-300 transition"
+        {imageUrl && (
+          <div className="mt-2 border rounded p-2">
+            <p className="text-xs text-gray-500 mb-1">Vista previa:</p>
+            <img
+              src={imageUrl}
+              alt="Vista previa"
+              className="h-40 object-contain mx-auto"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=Error+de+imagen';
+              }}
+            />
+          </div>
+        )}
+      </FormField>
+
+      <FormField
+        label="Disponibilidad"
+        htmlFor="available"
+      >
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="available"
+            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            checked={available}
+            onChange={(e) => setAvailable(e.target.checked)}
+          />
+          <label htmlFor="available" className="ml-2 text-sm text-gray-700">
+            Disponible para pedidos
+          </label>
+        </div>
+      </FormField>
+
+      <div className="flex gap-3 justify-end mt-6">
+        <Button
+          variant="outline"
           onClick={onCancel}
+          disabled={isSubmitting}
         >
           Cancelar
-        </button>
+        </Button>
+        <Button
+          type="submit"
+          isLoading={isSubmitting}
+          className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 text-lg"
+        >
+          {initialValues.id ? 'Guardar Cambios' : 'Crear Plato'}
+        </Button>
       </div>
     </form>
   );

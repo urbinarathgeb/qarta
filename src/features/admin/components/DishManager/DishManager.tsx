@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { formatPriceCLP } from '@/utils/formatting';
 import { useCrudList } from '@/hooks/useCrudList';
 import { filtrarPorEstado as _filtrarPorEstado } from '@/lib/promoUtils';
@@ -6,6 +6,7 @@ import type { Dish } from '@/types/dish';
 import type { FilterType } from '@/types/common';
 import { logError } from '@/utils/error';
 import { Button, ErrorMessage, FilterTabs } from '@/components/ui';
+import { Modal } from '@/components/ui/molecules';
 import { EntityCardGrid, type EntityCardField } from '@/components/ui/organisms';
 import DishForm from './DishForm';
 
@@ -20,19 +21,20 @@ interface DishManagerProps {
  * Componente para gestionar platos en el panel admin
  */
 const DishManager: React.FC<DishManagerProps> = ({ filtro }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const {
     items: dishes,
     loading,
     error,
-    showForm,
     editingItem,
     filter,
     setFilter,
     handleNew,
     handleEdit,
-    handleCancelForm,
     handleSave,
     handleToggleActive,
+    setEditingItem,
   } = useCrudList<Dish>({
     table: 'dishes',
     defaultFilter: 'all',
@@ -45,6 +47,37 @@ const DishManager: React.FC<DishManagerProps> = ({ filtro }) => {
       logError(error, 'DishManager');
     }
   }, [error]);
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingItem(null);
+  };
+
+  const handleNewDish = () => {
+    handleNew();
+    openModal();
+  };
+
+  const handleEditDish = (dish: Dish) => {
+    console.log('Editando plato:', dish);
+    handleEdit(dish);
+    openModal();
+  };
+
+  const handleSaveDish = (data: Partial<Dish>) => {
+    console.log('Guardando plato:', data);
+    handleSave(data);
+    closeModal();
+  };
+
+  const handleToggleDishActive = (dish: Dish) => {
+    console.log('Cambiando estado del plato:', dish);
+    handleToggleActive(dish);
+  };
 
   // Aplica el filtro recibido
   const dishesFiltrados = dishes.filter((dish) => {
@@ -60,8 +93,8 @@ const DishManager: React.FC<DishManagerProps> = ({ filtro }) => {
 
   // Definición de campos para la card
   const dishFields: EntityCardField<Dish>[] = [
-    { key: 'name', label: 'Nombre', accessor: 'name' },
-    { key: 'description', label: 'Descripción', accessor: 'description' },
+    { key: 'name', label: 'Nombre', accessor: 'name', isPrimary: true },
+    { key: 'description', label: 'Descripción', accessor: 'description', hideOnMobile: true },
     {
       key: 'price',
       label: 'Precio',
@@ -93,39 +126,42 @@ const DishManager: React.FC<DishManagerProps> = ({ filtro }) => {
     <main className="min-h-screen bg-background font-serif py-8 w-full">
       {error && <ErrorMessage error={error} className="mb-4 mx-auto max-w-2xl" />}
 
-      {!showForm && (
-        <FilterTabs
-          options={filterOptions}
-          value={filter}
-          onChange={(value) => setFilter(value as FilterType)}
-        />
-      )}
+      <FilterTabs
+        options={filterOptions}
+        value={filter}
+        onChange={(value) => setFilter(value as FilterType)}
+      />
 
-      {showForm ? (
+      <div className="mb-8 flex justify-end">
+        <Button onClick={handleNewDish} leftIcon={<span>+</span>}>
+          Nuevo Plato
+        </Button>
+      </div>
+
+      <div className="w-full max-w-screen-2xl mx-auto px-4">
+        <EntityCardGrid
+          items={dishesFiltrados}
+          fields={dishFields}
+          loading={loading}
+          onEdit={handleEditDish}
+          onToggleActive={handleToggleDishActive}
+          emptyMessage="No hay platos registrados."
+          darkTheme={true}
+        />
+      </div>
+
+      <Modal
+        title={editingItem?.id ? 'Editar Plato' : 'Nuevo Plato'}
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        maxWidth="max-w-xl"
+      >
         <DishForm
           initialValues={editingItem || {}}
-          onSave={handleSave}
-          onCancel={handleCancelForm}
+          onSave={handleSaveDish}
+          onCancel={closeModal}
         />
-      ) : (
-        <>
-          <div className="mb-8 flex justify-end">
-            <Button onClick={handleNew} leftIcon={<span>+</span>}>
-              Nuevo Plato
-            </Button>
-          </div>
-          <div className="w-full max-w-screen-2xl mx-auto px-4">
-            <EntityCardGrid
-              items={dishesFiltrados}
-              fields={dishFields}
-              loading={loading}
-              onEdit={handleEdit}
-              onToggleActive={handleToggleActive}
-              emptyMessage="No hay platos registrados."
-            />
-          </div>
-        </>
-      )}
+      </Modal>
     </main>
   );
 };

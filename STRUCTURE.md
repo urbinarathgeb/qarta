@@ -12,7 +12,7 @@ src/
 │   │   ├── atoms/       # Componentes básicos (Button, ErrorMessage, etc.)
 │   │   ├── molecules/   # Componentes más complejos (FormField, FilterTabs, etc.)
 │   │   └── organisms/   # Conjuntos de componentes (EntityCardGrid, Forms, etc.)
-│   └── admin/           # Componentes admin legacy (serán migrados a features)
+│   └── admin/           # Componentes admin (dashboard, cards, etc.)
 ├── constants/           # Valores constantes (etiquetas, opciones, etc.)
 ├── features/            # Organizado por dominio de negocio
 │   ├── menu/            # Todo lo relacionado con el menú público
@@ -22,7 +22,7 @@ src/
 │   ├── admin/           # Todo lo relacionado con el panel admin
 │   │   ├── components/  # Componentes específicos de administración
 │   │   │   ├── DishManager/  # Gestión de platos
-│   │   │   └── PromoManager/ # Gestión de promociones (futura migración)
+│   │   │   └── PromoManager/ # Gestión de promociones
 │   │   ├── hooks/       # Hooks de administración
 │   │   └── types/       # Tipos de administración
 ├── hooks/               # Hooks reutilizables
@@ -116,15 +116,21 @@ feature-name/
 
 ## Migración Progresiva
 
-El proyecto está en proceso de migración a esta estructura. Algunos componentes aún siguen la estructura antigua pero serán migrados gradualmente.
+El proyecto ha completado la migración de varios componentes a la nueva estructura.
 
-### Componentes ya migrados
+### Componentes migrados completamente
 
 - ✅ `StatusFilter` → `FilterTabs`
 - ✅ `CrudCardList` → `EntityCardGrid`
-- ✅ `AdminDishes` → `DishManager`
+- ✅ `AdminDishes` → `DishManager` (componente obsoleto eliminado)
+- ✅ `AdminPromos` → `PromoManager` (componente obsoleto eliminado)
+
+### Componentes oficiales actuales
+
+- `DishManager` - Gestión completa de platos en el panel administrativo
+- `PromoManager` - Gestión completa de promociones en el panel administrativo  
+- `EntityCardGrid` - Visualización uniforme de colecciones de datos en tarjetas
 
 ### Componentes pendientes de migración
 
-- `AdminPromos` → `PromoManager`
 - `AdminDashboard` → `Dashboard`

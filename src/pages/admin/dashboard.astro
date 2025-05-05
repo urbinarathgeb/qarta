@@ -1,0 +1,9 @@
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { DishManager, PromoManager } from '@/features/admin/components';
+import AdminDashboard from '@/components/admin/AdminDashboard';
+---
+
+<AdminLayout>
+  <AdminDashboard client:load />
+</AdminLayout>

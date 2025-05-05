@@ -2,16 +2,24 @@
 
 @theme {
   /* Colores */
-  --color-green: #2e8b57; /* Verde albahaca */
-  --color-red: #c0392b; /* Rojo pomodoro */
-  --color-background: #222; /* Blanco mozzarella */
-  --color-text: #fafafa; /* Negro trufa (texto principal) */
-  --color-text-light: #b0b0b0; /* Gris oliva (texto secundario) */
-  --color-gray-light: #4f4f4f; /* Gris piedra (borders, detalles) */
+  --color-green: #2e8b57;
+  /* Verde albahaca */
+  --color-red: #c0392b;
+  /* Rojo pomodoro */
+  --color-background: #222;
+  /* Blanco mozzarella */
+  --color-text: #fafafa;
+  /* Negro trufa (texto principal) */
+  --color-text-light: #b0b0b0;
+  /* Gris oliva (texto secundario) */
+  --color-gray-light: #4f4f4f;
+  /* Gris piedra (borders, detalles) */
 
   /* Tipografías */
-  --font-title: 'Lora', serif; /* Supports weights 400-700 */
-  --font-body: 'Sora', sans-serif; /* Supports weights 100-800 */
+  --font-title: 'Lora', serif;
+  /* Supports weights 400-700 */
+  --font-body: 'Sora', sans-serif;
+  /* Supports weights 100-800 */
 
   /* Jerarquía tipográfica */
   --font-h1-size: 2.5rem;
@@ -72,6 +80,7 @@
     letter-spacing: var(--font-h3-letter);
     color: var(--color-text);
   }
+
   .text-body {
     font-family: var(--font-body);
     font-size: var(--font-body-size);
@@ -80,6 +89,7 @@
     letter-spacing: var(--font-body-letter);
     color: var(--color-text);
   }
+
   .text-description {
     font-family: var(--font-body);
     font-size: var(--font-secondary-size);
@@ -88,4 +98,20 @@
     letter-spacing: var(--font-secondary-letter);
     color: var(--color-text-light);
   }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out forwards;
 }

@@ -20,6 +20,7 @@ export function useCrudList<T = any>({
     setLoading(true);
     setError(null);
     try {
+      console.log(`Fetching items from ${table}...`);
       const { data, error } = await supabase
         .from(table)
         .select('*')
@@ -29,6 +30,7 @@ export function useCrudList<T = any>({
         setItems([]); // Limpia items si hay error
         console.error(`Error al obtener datos de ${table}:`, error.message);
       } else {
+        console.log(`Fetched ${data?.length || 0} items from ${table}.`);
         setItems(mapItem ? data.map(mapItem) : data || []);
         setError(null);
       }
@@ -40,9 +42,30 @@ export function useCrudList<T = any>({
     setLoading(false);
   }
 
+  // Cargar items al montar el componente
   useEffect(() => {
     fetchItems();
     // eslint-disable-next-line
+  }, [table]);
+
+  // Suscribirse a cambios en la tabla
+  useEffect(() => {
+    console.log(`Setting up subscription for table: ${table}`);
+
+    const subscription = supabase
+      .channel(`public:${table}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table }, (payload) => {
+        console.log(`Change detected in ${table}:`, payload);
+        fetchItems();
+      })
+      .subscribe((status) => {
+        console.log(`Subscription status for ${table}:`, status);
+      });
+
+    return () => {
+      console.log(`Cleaning up subscription for ${table}`);
+      subscription.unsubscribe();
+    };
   }, [table]);
 
   function handleNew() {
@@ -51,6 +74,7 @@ export function useCrudList<T = any>({
   }
 
   function handleEdit(item: T) {
+    console.log('handleEdit called with item:', item);
     setEditingItem(item);
     setShowForm(true);
   }
@@ -64,24 +88,39 @@ export function useCrudList<T = any>({
     setLoading(true);
     setError(null);
     const isEdit = editingItem && (editingItem as any).id;
+
+    console.log('------- GUARDANDO EN LA BASE DE DATOS -------');
+    console.log('handleSave ejecutándose con los siguientes datos:', {
+      isEdit,
+      itemId: isEdit ? (editingItem as any).id : 'nuevo registro',
+      tabla: table,
+      datos: itemData
+    });
+
     const dataToSave = isEdit ? { ...(editingItem as any), ...itemData } : itemData;
     if (!isEdit && dataToSave[activeField] === undefined) dataToSave[activeField] = true;
     if (typeof dataToSave.price === 'string') dataToSave.price = Number(dataToSave.price);
+
+    console.log('Datos a guardar en Supabase:', dataToSave);
+
     try {
       let error;
       if (isEdit) {
+        console.log(`Actualizando item en ${table} con id:`, (editingItem as any).id);
         ({ error } = await supabase
           .from(table)
           .update(dataToSave)
           .eq('id', (editingItem as any).id));
       } else {
+        console.log(`Insertando nuevo item en ${table}`);
         ({ error } = await supabase.from(table).insert([dataToSave]));
       }
       if (error) {
         setError(error.message);
         console.error(`Error al guardar en ${table}:`, error.message);
       } else {
-        await fetchItems();
+        console.log(`Guardado exitoso en ${table}`);
+        // La actualización ahora se manejará a través de la suscripción
         setShowForm(false);
         setEditingItem(null);
       }
@@ -96,15 +135,20 @@ export function useCrudList<T = any>({
     setLoading(true);
     setError(null);
     try {
+      console.log(`Toggling ${activeField} for item in ${table} with id:`, (item as any).id);
+      console.log('Current value:', (item as any)[activeField]);
+
       const { error } = await supabase
         .from(table)
         .update({ [activeField]: !(item as any)[activeField] })
         .eq('id', (item as any).id);
+
       if (error) {
         setError(error.message);
         console.error(`Error al cambiar estado en ${table}:`, error.message);
       } else {
-        await fetchItems();
+        console.log(`Successfully toggled ${activeField} in ${table}`);
+        // La actualización ahora se manejará a través de la suscripción
       }
     } catch (err) {
       setError('Error inesperado al cambiar estado');

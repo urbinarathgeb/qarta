@@ -62,15 +62,58 @@
 - Eliminados archivos de utilidades duplicados:
   - `format.ts` → Reemplazado por `formatting/`
   - `errorHandler.ts` → Reemplazado por `error/`
+- Eliminados componentes obsoletos:
+  - `AdminDishes.tsx` → Completamente reemplazado por `DishManager`
+  - `AdminPromos.tsx` → Completamente reemplazado por `PromoManager` 
 - Actualizadas las importaciones para usar las nuevas rutas
+- Actualizada la documentación para reflejar la eliminación de componentes obsoletos
+
+## Mejoras del Dashboard
+
+### Implementación de Dashboard Dinámico
+
+Para hacer el dashboard más dinámico e interactivo, se implementaron las siguientes mejoras:
+
+#### 1. Modernización de la gestión de platos
+
+- Se migró `AdminDishes` a `DishManager` usando componentes atómicos
+- Se implementó un sistema de modales para crear/editar platos sin cambiar de vista
+- Se añadió vista previa de imágenes en el formulario
+- Se mejoró la validación de formularios y la experiencia de usuario
+
+#### 2. Modernización de la gestión de promociones
+
+- Se implementó `PromoManager` siguiendo el mismo patrón que `DishManager`
+- Se creó `PromoForm` con:
+  - Vista previa de imágenes
+  - Interfaz mejorada con layout responsivo en dos columnas
+  - Mejor validación de fechas y campos requeridos
+  - Integración con platos disponibles para promociones
+
+#### 3. Integración en una nueva página de dashboard
+
+- Se creó una nueva página `dashboard.astro` que integra:
+  - Gestión de platos y promociones en un solo lugar
+  - Interfaz moderna y responsiva
+  - Mejor organización del espacio
+  
+#### 4. Componentes UI reutilizables
+
+- Se implementó el componente `Modal` para mostrar formularios sin cambiar de página
+- Se añadió animación de entrada para mejorar la experiencia de usuario
+- Se optimizó el flujo de trabajo para gestionar entidades
+
+Estos cambios mejoran significativamente la experiencia de administración, permitiendo una gestión más rápida y eficiente de platos y promociones sin necesidad de navegar entre páginas.
 
 ## Próximos pasos
 
 1. Completar la migración de componentes admin restantes
 
-   - Migrar `AdminPromos` a `PromoManager` en estructura de features
+   - ~~Migrar `AdminPromos` a `PromoManager` en estructura de features~~ ✅ COMPLETADO
+   - ~~Migrar `AdminDishes` a `DishManager` en estructura de features~~ ✅ COMPLETADO
    - Migrar `AdminDashboard` a `Dashboard` en estructura de features
-   - Actualizar las importaciones en archivos que aún usan los componentes antiguos
+   - ~~Actualizar las importaciones en archivos que aún usan los componentes antiguos~~ ✅ COMPLETADO
+   - ~~Eliminar componentes antiguos ya migrados~~ ✅ COMPLETADO
 
 2. ~~Finalizar la migración de utilidades~~ ✅ COMPLETADO
 
