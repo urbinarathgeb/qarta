@@ -1,15 +1,6 @@
 import { useState, useEffect } from "react";
-import { supabase } from "../lib/supabaseClient";
-
-export type FilterType = 'all' | 'active' | 'inactive';
-
-export interface UseCrudListOptions<T> {
-  table: string;
-  defaultFilter?: FilterType;
-  mapItem?: (item: any) => T;
-  defaultItem?: Partial<T>;
-  activeField?: string; // 'active', 'available', etc.
-}
+import { supabase } from "@/lib/supabaseClient";
+import type { FilterType, UseCrudListOptions } from '@/types/common';
 
 export function useCrudList<T = any>({
   table,

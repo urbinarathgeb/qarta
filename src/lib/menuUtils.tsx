@@ -25,7 +25,7 @@ export async function fetchMenuData() {
     .order("start_date", { ascending: false });
 
   // 2. Fetch platos normales
-  let { data: dishesData, error } = await supabase
+  const { data: dishesData, error } = await supabase
     .from("dishes")
     .select("*")
     .eq("available", true);
@@ -33,7 +33,7 @@ export async function fetchMenuData() {
   let dishes = (dishesData ?? []) as Dish[];
 
   // 3. Fetch categorías
-  let { data: enumCategory, error: enumError } =
+  const { data: enumCategory, error: enumError } =
     await supabase.rpc("get_enumcategories_values");
 
   // Section icon
@@ -56,7 +56,7 @@ export async function fetchMenuData() {
   );
 
   // 5. Agrupar platos por categoría
-  let dishesByCategory = Object.fromEntries(
+  const dishesByCategory = Object.fromEntries(
     (enumCategory as string[]).map((cat) => [
       cat,
       dishes.filter((dish) => dish.category === cat),
@@ -70,4 +70,48 @@ export async function fetchMenuData() {
     error: error || enumError,
     sectionIcon,
   };
+}
+
+export async function getCategorizedDishes() {
+  try {
+    // Comprobamos si ya tenemos los platos en localStorage
+    const storedDishes = localStorage.getItem('dishes');
+    if (storedDishes) {
+      const parsedDishes = JSON.parse(storedDishes);
+      return {
+        categorizedDishes: parsedDishes,
+        error: null,
+      };
+    }
+
+    // Sino, hacemos la petición
+    const { data: dishesData, error } = await supabase
+      .from('dishes')
+      .select('*')
+      .eq('available', true)
+      .order('category');
+
+    if (error) {
+      console.error('Error fetching dishes:', error.message);
+      return { categorizedDishes: {}, error: error.message };
+    }
+
+    const { data: enumCategory, error: enumError } = await supabase
+      .rpc('get_available_categories');
+
+    if (enumError) {
+      console.error('Error fetching categories:', enumError.message);
+      return { categorizedDishes: {}, error: enumError.message };
+    }
+
+    // ... existing code ...
+
+    // Agrupar los platos por categoría
+    const dishesByCategory = {};
+
+    // ... rest of the code ...
+  } catch (error) {
+    console.error('Error getting categorized dishes:', error.message);
+    return { categorizedDishes: {}, error: error.message };
+  }
 }

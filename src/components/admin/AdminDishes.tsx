@@ -1,26 +1,13 @@
 import React, { useEffect, useState } from "react";
-import StatusFilter from "@/components/admin/StatusFilter";
-import { formatPriceCLP } from "@/utils/format";
+import { FilterTabs } from "@/components/ui/molecules";
+import { formatPriceCLP } from "@/utils/formatting";
 import { useCrudList } from "@/hooks/useCrudList";
 import { filtrarPorEstado } from "@/lib/promoUtils";
-import CrudCardList from "@/components/admin/CrudCardList";
-import type { CrudCardField } from "@/components/admin/CrudCardList";
-
-export interface Dish {
-  id?: string;
-  name: string;
-  description: string;
-  price: number;
-  available: boolean;
-  image_url?: string;
-  category?: string;
-}
-
-interface DishFormProps {
-  initialValues?: Partial<Dish>;
-  onSave: (dish: Partial<Dish>) => void;
-  onCancel: () => void;
-}
+import { EntityCardGrid } from "@/components/ui/organisms";
+import type { EntityCardField } from "@/components/ui/organisms";
+import type { Dish, DishFormProps } from "@/types/dish";
+import { DishCategory } from "@/types/dish";
+import { logError, formatErrorMessage } from "@/utils/error";
 
 const DishForm: React.FC<DishFormProps> = ({
   initialValues = {},
@@ -36,8 +23,8 @@ const DishForm: React.FC<DishFormProps> = ({
   const [price, setPrice] = useState(
     initialValues.price || 0
   );
-  const [category, setCategory] = useState(
-    initialValues.category || ""
+  const [category, setCategory] = useState<DishCategory | undefined>(
+    initialValues.category
   );
   const [available, setAvailable] = useState(
     initialValues.available ?? true
@@ -53,7 +40,7 @@ const DishForm: React.FC<DishFormProps> = ({
     setName(initialValues.name || "");
     setDescription(initialValues.description || "");
     setPrice(initialValues.price || 0);
-    setCategory(initialValues.category || "");
+    setCategory(initialValues.category);
     setAvailable(initialValues.available ?? true);
     setImageUrl(initialValues.image_url || "");
     setErrors({});
@@ -69,7 +56,7 @@ const DishForm: React.FC<DishFormProps> = ({
     if (isNaN(price) || price < 0)
       newErrors.price =
         "El precio debe ser un número positivo";
-    if (!category.trim())
+    if (!category)
       newErrors.category = "La categoría es obligatoria";
     return newErrors;
   }
@@ -84,7 +71,7 @@ const DishForm: React.FC<DishFormProps> = ({
       name: name.trim(),
       description: description.trim(),
       price: Number(price),
-      category: category.trim(),
+      category,
       available,
       image_url: imageUrl.trim() || undefined,
     });
@@ -148,14 +135,16 @@ const DishForm: React.FC<DishFormProps> = ({
         Categoría
         <select
           className="mt-1 block w-full border border-border rounded px-3 py-2"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          value={category || ""}
+          onChange={(e) => setCategory(e.target.value as DishCategory)}
           required
         >
           <option value="">Selecciona una categoría</option>
-          <option value="pizza">Pizza</option>
-          <option value="bebida">Bebidas</option>
-          <option value="postre">Postre</option>
+          <option value={DishCategory.PIZZA}>Pizza</option>
+          <option value={DishCategory.BEBIDA}>Bebidas</option>
+          <option value={DishCategory.POSTRE}>Postre</option>
+          <option value={DishCategory.PASTA}>Pasta</option>
+          <option value={DishCategory.CERVEZA}>Cerveza</option>
         </select>
         {errors.category && (
           <span className="text-red-500 text-xs">
@@ -223,6 +212,13 @@ const AdminDishes: React.FC<{ filtro: any }> = ({ filtro }) => {
     activeField: "available",
   });
 
+  // Utiliza el manejador de errores mejorado
+  useEffect(() => {
+    if (error) {
+      logError(error, 'AdminDishes');
+    }
+  }, [error]);
+
   // Aplica el filtro recibido
   const dishesFiltrados = dishes.filter((dish) => {
     if (filtro.tipo === "todos") return true;
@@ -236,24 +232,23 @@ const AdminDishes: React.FC<{ filtro: any }> = ({ filtro }) => {
   });
 
   // Definición de campos para la card
-  const dishFields: CrudCardField<Dish>[] = [
-    { label: "Nombre", accessor: "name" },
-    { label: "Descripción", accessor: "description" },
+  const dishFields: EntityCardField<Dish>[] = [
+    { key: "name", label: "Nombre", accessor: "name" },
+    { key: "description", label: "Descripción", accessor: "description" },
     {
+      key: "price",
       label: "Precio",
       accessor: "price",
-      render: (d) => formatPriceCLP(d.price),
+      formatter: (value) => formatPriceCLP(value as number),
     },
-    { label: "Categoría", accessor: "category" },
+    { key: "category", label: "Categoría", accessor: "category" },
     {
+      key: "available",
       label: "Disponible",
       accessor: "available",
-      render: (d) =>
-        d.available ? (
-          <span className="text-green-600">Sí</span>
-        ) : (
-          <span className="text-gray-400">No</span>
-        ),
+      formatter: (value) => value ?
+        <span className="text-green-600">Sí</span> :
+        <span className="text-gray-400">No</span>,
     },
   ];
 
@@ -265,14 +260,14 @@ const AdminDishes: React.FC<{ filtro: any }> = ({ filtro }) => {
         </p>
       )}
       {!showForm && (
-        <StatusFilter
+        <FilterTabs
+          options={[
+            { value: "all", label: "Todos" },
+            { value: "active", label: "Solo activos", colorClass: "bg-green-600" },
+            { value: "inactive", label: "Solo inactivos", colorClass: "bg-gray-400" }
+          ]}
           value={filter}
-          onChange={setFilter}
-          labels={{
-            all: "Todos",
-            active: "Solo activos",
-            inactive: "Solo inactivos",
-          }}
+          onChange={(value) => setFilter(value as "all" | "active" | "inactive")}
         />
       )}
       {showForm ? (
@@ -292,7 +287,7 @@ const AdminDishes: React.FC<{ filtro: any }> = ({ filtro }) => {
             </button>
           </div>
           <div className="w-full max-w-screen-2xl mx-auto px-4">
-            <CrudCardList
+            <EntityCardGrid
               items={dishesFiltrados}
               fields={dishFields}
               loading={loading}

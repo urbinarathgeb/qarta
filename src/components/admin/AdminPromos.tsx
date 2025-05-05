@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import StatusFilter from "@/components/admin/StatusFilter";
-import { formatPriceCLP, formatDate } from "@/utils/format";
-import CrudCardList from "@/components/admin/CrudCardList";
-import type { CrudCardField } from "@/components/admin/CrudCardList";
+import { FilterTabs } from "@/components/ui/molecules";
+import { formatPriceCLP, formatDate } from "@/utils/formatting";
+import { EntityCardGrid } from "@/components/ui/organisms";
+import type { EntityCardField } from "@/components/ui/organisms";
 import { filtrarPorEstado } from "@/lib/promoUtils";
 import { useCrudList } from "@/hooks/useCrudList";
+import { logError } from "@/utils/error";
 
 export interface Promo {
   id?: string;
@@ -358,6 +359,13 @@ const AdminPromos: React.FC = () => {
     activeField: "active",
   });
 
+  // Manejo de errores mejorado
+  useEffect(() => {
+    if (error) {
+      logError(error, 'AdminPromos');
+    }
+  }, [error]);
+
   // Filtro visual (ahora usando helper genérico)
   const promosToShow = filtrarPorEstado(
     promos,
@@ -367,28 +375,25 @@ const AdminPromos: React.FC = () => {
   );
 
   // Definición de campos para la card
-  const promoFields: CrudCardField<Promo>[] = [
-    { label: "Título", accessor: "title" },
-    { label: "Tipo", accessor: "type" },
+  const promoFields: EntityCardField<Promo>[] = [
+    { key: "title", label: "Título", accessor: "title" },
+    { key: "type", label: "Tipo", accessor: "type" },
     {
+      key: "start_date",
       label: "Inicio",
       accessor: "start_date",
-      render: (p) => formatDate(p.start_date),
+      formatter: (value) => formatDate(value as string),
     },
     {
+      key: "end_date",
       label: "Fin",
       accessor: "end_date",
-      render: (p) => formatDate(p.end_date),
+      formatter: (value) => formatDate(value as string),
     },
     {
+      key: "active",
       label: "Activo",
       accessor: "active",
-      render: (p) =>
-        p.active ? (
-          <span className="text-green-600">Sí</span>
-        ) : (
-          <span className="text-gray-400">No</span>
-        ),
     },
   ];
 
@@ -401,14 +406,14 @@ const AdminPromos: React.FC = () => {
       )}
       {!showForm && (
         <div className="mb-4 flex gap-2 justify-center">
-          <StatusFilter
+          <FilterTabs
+            options={[
+              { value: "all", label: "Todas" },
+              { value: "active", label: "Solo activas", colorClass: "bg-green-600" },
+              { value: "inactive", label: "Solo inactivas", colorClass: "bg-gray-400" }
+            ]}
             value={filter}
-            onChange={setFilter}
-            labels={{
-              all: "Todas",
-              active: "Solo activas",
-              inactive: "Solo inactivas",
-            }}
+            onChange={(value) => setFilter(value as "all" | "active" | "inactive")}
           />
         </div>
       )}
@@ -427,7 +432,7 @@ const AdminPromos: React.FC = () => {
             Nueva promoción
           </button>
           <div className="w-full max-w-screen-2xl mx-auto px-4">
-            <CrudCardList
+            <EntityCardGrid
               items={promosToShow}
               fields={promoFields}
               loading={loading}
