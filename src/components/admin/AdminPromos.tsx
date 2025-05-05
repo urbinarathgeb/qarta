@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { FilterTabs } from "@/components/ui/molecules";
-import { formatPriceCLP, formatDate } from "@/utils/formatting";
-import { EntityCardGrid } from "@/components/ui/organisms";
-import type { EntityCardField } from "@/components/ui/organisms";
-import { filtrarPorEstado } from "@/lib/promoUtils";
-import { useCrudList } from "@/hooks/useCrudList";
-import { logError } from "@/utils/error";
+import React, { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import { FilterTabs } from '@/components/ui/molecules';
+import { formatPriceCLP, formatDate } from '@/utils/formatting';
+import { EntityCardGrid } from '@/components/ui/organisms';
+import type { EntityCardField } from '@/components/ui/organisms';
+import { filtrarPorEstado } from '@/lib/promoUtils';
+import { useCrudList } from '@/hooks/useCrudList';
+import { logError } from '@/utils/error';
 
 export interface Promo {
   id?: string;
@@ -34,54 +34,30 @@ interface DishOption {
   price?: number;
 }
 
-const PromoForm: React.FC<PromoFormProps> = ({
-  initialValues = {},
-  onSave,
-  onCancel,
-}) => {
-  const [title, setTitle] = useState(
-    initialValues.title || ""
-  );
-  const [description, setDescription] = useState(
-    initialValues.description || ""
-  );
-  const [imageUrl, setImageUrl] = useState(
-    initialValues.image_url || ""
-  );
-  const [startDate, setStartDate] = useState(
-    initialValues.start_date || ""
-  );
-  const [endDate, setEndDate] = useState(
-    initialValues.end_date || ""
-  );
-  const [type, setType] = useState(
-    initialValues.type || ""
-  );
-  const [dishId, setDishId] = useState(
-    initialValues.dish_id || ""
-  );
-  const [price, setPrice] = useState(
-    initialValues.price || 0
-  );
-  const [active, setActive] = useState(
-    initialValues.active ?? true
-  );
+const PromoForm: React.FC<PromoFormProps> = ({ initialValues = {}, onSave, onCancel }) => {
+  const [title, setTitle] = useState(initialValues.title || '');
+  const [description, setDescription] = useState(initialValues.description || '');
+  const [imageUrl, setImageUrl] = useState(initialValues.image_url || '');
+  const [startDate, setStartDate] = useState(initialValues.start_date || '');
+  const [endDate, setEndDate] = useState(initialValues.end_date || '');
+  const [type, setType] = useState(initialValues.type || '');
+  const [dishId, setDishId] = useState(initialValues.dish_id || '');
+  const [price, setPrice] = useState(initialValues.price || 0);
+  const [active, setActive] = useState(initialValues.active ?? true);
   const [errors, setErrors] = useState<{
     [key: string]: string;
   }>({});
-  const [dishOptions, setDishOptions] = useState<
-    DishOption[]
-  >([]);
+  const [dishOptions, setDishOptions] = useState<DishOption[]>([]);
   const [loadingDishes, setLoadingDishes] = useState(false);
 
   useEffect(() => {
-    setTitle(initialValues.title || "");
-    setDescription(initialValues.description || "");
-    setImageUrl(initialValues.image_url || "");
-    setStartDate(initialValues.start_date || "");
-    setEndDate(initialValues.end_date || "");
-    setType(initialValues.type || "");
-    setDishId(initialValues.dish_id || "");
+    setTitle(initialValues.title || '');
+    setDescription(initialValues.description || '');
+    setImageUrl(initialValues.image_url || '');
+    setStartDate(initialValues.start_date || '');
+    setEndDate(initialValues.end_date || '');
+    setType(initialValues.type || '');
+    setDishId(initialValues.dish_id || '');
     setPrice(initialValues.price || 0);
     setActive(initialValues.active ?? true);
     setErrors({});
@@ -91,9 +67,9 @@ const PromoForm: React.FC<PromoFormProps> = ({
     async function fetchDishes() {
       setLoadingDishes(true);
       const { data, error } = await supabase
-        .from("dishes")
-        .select("id, name, description, price")
-        .order("name", { ascending: true });
+        .from('dishes')
+        .select('id, name, description, price')
+        .order('name', { ascending: true });
       if (!error && data) setDishOptions(data);
       setLoadingDishes(false);
     }
@@ -101,18 +77,11 @@ const PromoForm: React.FC<PromoFormProps> = ({
   }, []);
 
   useEffect(() => {
-    if (
-      type === "descuento" &&
-      dishId &&
-      dishOptions.length > 0
-    ) {
-      const selected = dishOptions.find(
-        (d) => d.id === dishId
-      );
+    if (type === 'descuento' && dishId && dishOptions.length > 0) {
+      const selected = dishOptions.find((d) => d.id === dishId);
       if (selected) {
         if (!title) setTitle(selected.name);
-        if (!description)
-          setDescription(selected.description || "");
+        if (!description) setDescription(selected.description || '');
       }
     }
     // eslint-disable-next-line
@@ -120,18 +89,12 @@ const PromoForm: React.FC<PromoFormProps> = ({
 
   function validate() {
     const newErrors: { [key: string]: string } = {};
-    if (!title.trim())
-      newErrors.title = "El título es obligatorio";
-    if (!type.trim())
-      newErrors.type = "El tipo es obligatorio";
-    if (type === "descuento" && !dishId.trim())
-      newErrors.dish_id =
-        "El plato es obligatorio para descuento";
-    if (
-      (type === "precio" || type === "descuento") &&
-      (!price || price <= 0)
-    )
-      newErrors.price = "El precio debe ser mayor que 0";
+    if (!title.trim()) newErrors.title = 'El título es obligatorio';
+    if (!type.trim()) newErrors.type = 'El tipo es obligatorio';
+    if (type === 'descuento' && !dishId.trim())
+      newErrors.dish_id = 'El plato es obligatorio para descuento';
+    if ((type === 'precio' || type === 'descuento') && (!price || price <= 0))
+      newErrors.price = 'El precio debe ser mayor que 0';
     return newErrors;
   }
 
@@ -159,7 +122,7 @@ const PromoForm: React.FC<PromoFormProps> = ({
       onSubmit={handleSubmit}
     >
       <h2 className="text-xl font-bold mb-2">
-        {initialValues.id ? "Editar Promo" : "Nueva Promo"}
+        {initialValues.id ? 'Editar Promo' : 'Nueva Promo'}
       </h2>
       <label className="font-semibold">
         Título
@@ -170,11 +133,7 @@ const PromoForm: React.FC<PromoFormProps> = ({
           onChange={(e) => setTitle(e.target.value)}
           required
         />
-        {errors.title && (
-          <span className="text-red-500 text-xs">
-            {errors.title}
-          </span>
-        )}
+        {errors.title && <span className="text-red-500 text-xs">{errors.title}</span>}
       </label>
       <label className="font-semibold">
         Descripción
@@ -224,13 +183,9 @@ const PromoForm: React.FC<PromoFormProps> = ({
           <option value="descuento">Descuento</option>
           <option value="precio">Precio fijo</option>
         </select>
-        {errors.type && (
-          <span className="text-red-500 text-xs">
-            {errors.type}
-          </span>
-        )}
+        {errors.type && <span className="text-red-500 text-xs">{errors.type}</span>}
       </label>
-      {type === "descuento" && (
+      {type === 'descuento' && (
         <>
           <label className="font-semibold">
             Plato asociado
@@ -248,72 +203,48 @@ const PromoForm: React.FC<PromoFormProps> = ({
                 </option>
               ))}
             </select>
-            {errors.dish_id && (
-              <span className="text-red-500 text-xs">
-                {errors.dish_id}
-              </span>
-            )}
+            {errors.dish_id && <span className="text-red-500 text-xs">{errors.dish_id}</span>}
           </label>
           <label className="font-semibold mt-2">
             Precio promocional
             <input
               type="number"
               className="mt-1 block w-full border border-border rounded px-3 py-2"
-              value={price || ""}
+              value={price || ''}
               min="0"
               step="0.01"
-              onChange={(e) =>
-                setPrice(Number(e.target.value))
-              }
+              onChange={(e) => setPrice(Number(e.target.value))}
               required
             />
             {(() => {
-              const selected = dishOptions.find(
-                (d) => d.id === dishId
-              );
-              return selected &&
-                selected.price !== undefined ? (
+              const selected = dishOptions.find((d) => d.id === dishId);
+              return selected && selected.price !== undefined ? (
                 <div className="text-xs text-muted mt-1">
-                  Precio original:{" "}
-                  {formatPriceCLP(selected.price)}
+                  Precio original: {formatPriceCLP(selected.price)}
                 </div>
               ) : null;
             })()}
-            {errors.price && (
-              <span className="text-red-500 text-xs">
-                {errors.price}
-              </span>
-            )}
+            {errors.price && <span className="text-red-500 text-xs">{errors.price}</span>}
           </label>
         </>
       )}
-      {type === "precio" && (
+      {type === 'precio' && (
         <label className="font-semibold">
           Precio fijo
           <input
             type="number"
             className="mt-1 block w-full border border-border rounded px-3 py-2"
-            value={price || ""}
+            value={price || ''}
             min="0"
             step="0.01"
-            onChange={(e) =>
-              setPrice(Number(e.target.value))
-            }
+            onChange={(e) => setPrice(Number(e.target.value))}
             required
           />
-          {errors.price && (
-            <span className="text-red-500 text-xs">
-              {errors.price}
-            </span>
-          )}
+          {errors.price && <span className="text-red-500 text-xs">{errors.price}</span>}
         </label>
       )}
       <label className="inline-flex items-center gap-2">
-        <input
-          type="checkbox"
-          checked={active}
-          onChange={(e) => setActive(e.target.checked)}
-        />
+        <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} />
         Activa
       </label>
       <div className="flex gap-4 mt-4">
@@ -321,9 +252,7 @@ const PromoForm: React.FC<PromoFormProps> = ({
           type="submit"
           className="flex-1 px-4 py-2 bg-primary text-white rounded font-bold hover:bg-accent transition"
         >
-          {initialValues.id
-            ? "Guardar Cambios"
-            : "Crear Promo"}
+          {initialValues.id ? 'Guardar Cambios' : 'Crear Promo'}
         </button>
         <button
           type="button"
@@ -354,9 +283,9 @@ const AdminPromos: React.FC = () => {
     setShowForm,
     setEditingItem,
   } = useCrudList<Promo>({
-    table: "promos",
-    defaultFilter: "all",
-    activeField: "active",
+    table: 'promos',
+    defaultFilter: 'all',
+    activeField: 'active',
   });
 
   // Manejo de errores mejorado
@@ -367,53 +296,44 @@ const AdminPromos: React.FC = () => {
   }, [error]);
 
   // Filtro visual (ahora usando helper genérico)
-  const promosToShow = filtrarPorEstado(
-    promos,
-    filter,
-    showForm,
-    "active"
-  );
+  const promosToShow = filtrarPorEstado(promos, filter, showForm, 'active');
 
   // Definición de campos para la card
   const promoFields: EntityCardField<Promo>[] = [
-    { key: "title", label: "Título", accessor: "title" },
-    { key: "type", label: "Tipo", accessor: "type" },
+    { key: 'title', label: 'Título', accessor: 'title' },
+    { key: 'type', label: 'Tipo', accessor: 'type' },
     {
-      key: "start_date",
-      label: "Inicio",
-      accessor: "start_date",
+      key: 'start_date',
+      label: 'Inicio',
+      accessor: 'start_date',
       formatter: (value) => formatDate(value as string),
     },
     {
-      key: "end_date",
-      label: "Fin",
-      accessor: "end_date",
+      key: 'end_date',
+      label: 'Fin',
+      accessor: 'end_date',
       formatter: (value) => formatDate(value as string),
     },
     {
-      key: "active",
-      label: "Activo",
-      accessor: "active",
+      key: 'active',
+      label: 'Activo',
+      accessor: 'active',
     },
   ];
 
   return (
     <main className="min-h-screen bg-background font-serif py-8 w-full">
-      {error && (
-        <p className="text-red-500 text-center mb-4">
-          Error: {error}
-        </p>
-      )}
+      {error && <p className="text-red-500 text-center mb-4">Error: {error}</p>}
       {!showForm && (
         <div className="mb-4 flex gap-2 justify-center">
           <FilterTabs
             options={[
-              { value: "all", label: "Todas" },
-              { value: "active", label: "Solo activas", colorClass: "bg-green-600" },
-              { value: "inactive", label: "Solo inactivas", colorClass: "bg-gray-400" }
+              { value: 'all', label: 'Todas' },
+              { value: 'active', label: 'Solo activas', colorClass: 'bg-green-600' },
+              { value: 'inactive', label: 'Solo inactivas', colorClass: 'bg-gray-400' },
             ]}
             value={filter}
-            onChange={(value) => setFilter(value as "all" | "active" | "inactive")}
+            onChange={(value) => setFilter(value as 'all' | 'active' | 'inactive')}
           />
         </div>
       )}

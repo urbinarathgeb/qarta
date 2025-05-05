@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* Colores */
@@ -10,8 +10,8 @@
   --color-gray-light: #4f4f4f; /* Gris piedra (borders, detalles) */
 
   /* Tipografías */
-  --font-title: "Lora", serif; /* Supports weights 400-700 */
-  --font-body: "Sora", sans-serif; /* Supports weights 100-800 */
+  --font-title: 'Lora', serif; /* Supports weights 400-700 */
+  --font-body: 'Sora', sans-serif; /* Supports weights 100-800 */
 
   /* Jerarquía tipográfica */
   --font-h1-size: 2.5rem;

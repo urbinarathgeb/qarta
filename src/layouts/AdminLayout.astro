@@ -1,7 +1,7 @@
 ---
-import AdminAuthWrapper from "@/components/admin/AdminAuthWrapper";
-import AdminNavbar from "@/components/admin/AdminNavbar";
-import "@/styles/global.css";
+import AdminAuthWrapper from '@/components/admin/AdminAuthWrapper';
+import AdminNavbar from '@/components/admin/AdminNavbar';
+import '@/styles/global.css';
 ---
 
 <!doctype html>
@@ -17,10 +17,7 @@ import "@/styles/global.css";
       <AdminAuthWrapper client:load>
         <!-- Contenido principal -->
         <!-- <AdminNavbar client:load /> -->
-        <main
-          id="mainContent"
-          class="flex-1 transition-all duration-300 ease-in-out bg-background"
-        >
+        <main id="mainContent" class="flex-1 transition-all duration-300 ease-in-out bg-background">
           <slot />
         </main>
       </AdminAuthWrapper>

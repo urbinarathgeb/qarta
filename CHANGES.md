@@ -67,11 +67,13 @@
 ## Próximos pasos
 
 1. Completar la migración de componentes admin restantes
+
    - Migrar `AdminPromos` a `PromoManager` en estructura de features
    - Migrar `AdminDashboard` a `Dashboard` en estructura de features
    - Actualizar las importaciones en archivos que aún usan los componentes antiguos
 
 2. ~~Finalizar la migración de utilidades~~ ✅ COMPLETADO
+
    - ~~Actualizar todas las importaciones a la nueva estructura~~
    - ~~Eliminar archivos duplicados (`format.ts`, `errorHandler.ts`)~~
    - ~~Asegurar consistencia en el uso de utilidades~~
@@ -80,8 +82,8 @@
    - Reemplazar botones tradicionales por el componente `Button`
    - Sustituir mensajes de error por el componente `ErrorMessage`
    - Implementar `FormField` en todos los formularios
-   
 4. Mejorar las pruebas
+
    - Implementar pruebas unitarias para todos los componentes nuevos
    - Configurar pruebas automatizadas en el flujo de CI
    - Aumentar la cobertura de pruebas
@@ -89,4 +91,4 @@
 5. Mejorar la documentación
    - Documentar todos los props con JSDoc
    - Crear una biblioteca de componentes de ejemplo
-   - Actualizar el README principal con instrucciones de uso de componentes 
+   - Actualizar el README principal con instrucciones de uso de componentes

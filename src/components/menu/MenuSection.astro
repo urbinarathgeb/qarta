@@ -1,14 +1,12 @@
 ---
 // Sección del menú (ej: Entradas, Fondos, Postres)
-import MenuItem from "@/components/menu/MenuItem.astro";
-import Flag from "@/components/ui/Flag.astro";
-import type { Dish } from "@/components/menu/MenuItem.astro";
+import MenuItem from '@/components/menu/MenuItem.astro';
+import Flag from '@/components/ui/Flag.astro';
+import type { Dish } from '@/components/menu/MenuItem.astro';
 
 const { title, dishes, Icon = [] } = Astro.props;
 
-const formattedTitle =
-  title.charAt(0).toUpperCase() +
-  title.slice(1).toLowerCase();
+const formattedTitle = title.charAt(0).toUpperCase() + title.slice(1).toLowerCase();
 ---
 
 <section class="w-full">

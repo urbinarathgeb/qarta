@@ -1,1 +1,1 @@
-export * from './dishes'; 
+export * from './dishes';

@@ -13,8 +13,7 @@ export interface Dish {
 const { dish } = Astro.props;
 
 // Formatea el precio al formato chileno en una sola línea
-const formattedPrice = ((price: number) =>
-  price.toLocaleString("es-CL"))(dish.price);
+const formattedPrice = ((price: number) => price.toLocaleString('es-CL'))(dish.price);
 ---
 
 <li class="flex flex-col py-2">

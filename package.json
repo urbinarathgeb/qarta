@@ -8,7 +8,9 @@
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
+    "fix-all": "pnpm lint:fix && pnpm format",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepare": "husky install"

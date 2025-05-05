@@ -39,4 +39,4 @@ Componentes complejos que combinan múltiples elementos:
 2. Documentar los componentes con JSDoc para mejor autocompletado
 3. Usar tipos/interfaces TypeScript para los props de los componentes
 4. Seguir las convenciones de nombre establecidas
-5. Importar componentes desde el nivel más alto posible `@/components/ui` 
+5. Importar componentes desde el nivel más alto posible `@/components/ui`

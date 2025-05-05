@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabaseClient';
 import type { FilterType, UseCrudListOptions } from '@/types/common';
 
 export function useCrudList<T = any>({
@@ -20,7 +20,10 @@ export function useCrudList<T = any>({
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase.from(table).select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from(table)
+        .select('*')
+        .order('created_at', { ascending: false });
       if (error) {
         setError(error.message);
         setItems([]); // Limpia items si hay error
@@ -30,7 +33,7 @@ export function useCrudList<T = any>({
         setError(null);
       }
     } catch (err) {
-      setError("Error inesperado al obtener datos");
+      setError('Error inesperado al obtener datos');
       setItems([]);
       console.error(`Error inesperado al obtener datos de ${table}:`, err);
     }
@@ -67,7 +70,10 @@ export function useCrudList<T = any>({
     try {
       let error;
       if (isEdit) {
-        ({ error } = await supabase.from(table).update(dataToSave).eq("id", (editingItem as any).id));
+        ({ error } = await supabase
+          .from(table)
+          .update(dataToSave)
+          .eq('id', (editingItem as any).id));
       } else {
         ({ error } = await supabase.from(table).insert([dataToSave]));
       }
@@ -80,7 +86,7 @@ export function useCrudList<T = any>({
         setEditingItem(null);
       }
     } catch (err) {
-      setError("Error inesperado al guardar");
+      setError('Error inesperado al guardar');
       console.error(`Error inesperado al guardar en ${table}:`, err);
     }
     setLoading(false);
@@ -93,7 +99,7 @@ export function useCrudList<T = any>({
       const { error } = await supabase
         .from(table)
         .update({ [activeField]: !(item as any)[activeField] })
-        .eq("id", (item as any).id);
+        .eq('id', (item as any).id);
       if (error) {
         setError(error.message);
         console.error(`Error al cambiar estado en ${table}:`, error.message);
@@ -101,7 +107,7 @@ export function useCrudList<T = any>({
         await fetchItems();
       }
     } catch (err) {
-      setError("Error inesperado al cambiar estado");
+      setError('Error inesperado al cambiar estado');
       console.error(`Error inesperado al cambiar estado en ${table}:`, err);
     }
     setLoading(false);

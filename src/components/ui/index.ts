@@ -5,4 +5,4 @@ export * from './atoms';
 export * from './molecules';
 
 // Exportar componentes orgánicos
-export * from './organisms'; 
+export * from './organisms';

@@ -1,12 +1,11 @@
-import React from 'react'
-import { supabase } from "@/lib/supabaseClient";
+import React from 'react';
+import { supabase } from '@/lib/supabaseClient';
 
 const LogoutButton = () => {
-
-    //   async function handleLogout() {
-    //     await supabase.auth.signOut();
-    //     window.location.reload();
-    //   }
+  //   async function handleLogout() {
+  //     await supabase.auth.signOut();
+  //     window.location.reload();
+  //   }
   return (
     <button
       onClick={() => supabase.auth.signOut()}
@@ -14,7 +13,7 @@ const LogoutButton = () => {
     >
       Cerrar sesión
     </button>
-  )
-}
+  );
+};
 
-export default LogoutButton
+export default LogoutButton;

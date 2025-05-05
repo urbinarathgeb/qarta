@@ -6,7 +6,7 @@ Esta carpeta contiene funciones de utilidad generales usadas en toda la aplicaci
 
 ```
 utils/
-├── formatting/          # Utilidades de formateo 
+├── formatting/          # Utilidades de formateo
 │   ├── currencyFormat.ts  # Formateo de moneda
 │   ├── dateFormat.ts      # Formateo de fechas
 │   ├── textFormat.ts      # Formateo de texto
@@ -40,9 +40,9 @@ Para importar utilidades, se recomienda:
 
 ```typescript
 // Importaciones específicas
-import { formatPriceCLP, formatDate } from "@/utils/formatting";
-import { logError, formatErrorMessage } from "@/utils/error";
+import { formatPriceCLP, formatDate } from '@/utils/formatting';
+import { logError, formatErrorMessage } from '@/utils/error';
 
 // O importaciones generales desde la raíz de utils
-import { formatPriceCLP, logError } from "@/utils";
-``` 
+import { formatPriceCLP, logError } from '@/utils';
+```

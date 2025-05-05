@@ -4,6 +4,6 @@
  * @returns String formateado como moneda chilena
  */
 export function formatPriceCLP(price?: number | null): string {
-    if (typeof price !== "number" || isNaN(price)) return "-";
-    return "$" + price.toLocaleString("es-CL");
-} 
+  if (typeof price !== 'number' || isNaN(price)) return '-';
+  return '$' + price.toLocaleString('es-CL');
+}

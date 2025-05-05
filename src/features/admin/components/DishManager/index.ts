@@ -1,2 +1,2 @@
 import DishManager from './DishManager';
-export default DishManager; 
+export default DishManager;

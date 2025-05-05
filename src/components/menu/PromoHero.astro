@@ -8,23 +8,12 @@ export interface PromoHeroProps {
   price?: number;
 }
 
-const { image, icon, title, subtitle, description, price } =
-  Astro.props;
+const { image, icon, title, subtitle, description, price } = Astro.props;
 ---
 
-<div
-  class="w-full bg-background rounded-b-lg overflow-hidden"
->
+<div class="w-full bg-background rounded-b-lg overflow-hidden">
   <!-- Imagen hero -->
-  {
-    image && (
-      <img
-        src={image}
-        alt={title}
-        class="w-full h-40 object-cover"
-      />
-    )
-  }
+  {image && <img src={image} alt={title} class="w-full h-40 object-cover" />}
 
   <!-- Icono y título -->
   <div class="flex flex-col items-center">
@@ -33,17 +22,7 @@ const { image, icon, title, subtitle, description, price } =
       {title}
     </h2>
     {subtitle && <p class="text-body">{subtitle}</p>}
-    {
-      description && (
-        <p class="text-description">{description}</p>
-      )
-    }
-    {
-      price && (
-        <p class="title-lg">
-          ${price.toLocaleString("es-CL")}
-        </p>
-      )
-    }
+    {description && <p class="text-description">{description}</p>}
+    {price && <p class="title-lg">${price.toLocaleString('es-CL')}</p>}
   </div>
 </div>

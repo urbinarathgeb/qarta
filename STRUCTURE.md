@@ -47,18 +47,22 @@ src/
 ## Convenciones de Nomenclatura
 
 ### Componentes
+
 - **Componentes React**: Usar PascalCase para nombres de componentes (`Button.tsx`)
 - **Carpetas de componentes**: PascalCase, nombre igual al componente (`Button/`)
 - **Archivos de prueba**: Añadir `.test` al nombre (`Button.test.tsx`)
 
 ### Hooks
+
 - **Hooks**: Prefijo `use` en camelCase (`useCrudList.ts`)
 
 ### Utilidades
+
 - **Utilidades**: camelCase descriptivo (`errorFormatter.ts`)
 - **Archivos de barril**: Nombre `index.ts` en cada carpeta para exportaciones
 
 ### Tipos
+
 - **Interfaces/Types**: Nombrados en PascalCase (`DishProps`)
 - **Enums**: PascalCase (`DishCategory`)
 
@@ -67,18 +71,24 @@ src/
 Se sigue el patrón de Diseño Atómico para organizar los componentes UI:
 
 ### Atoms
+
 Componentes básicos que no dependen de otros componentes:
+
 - `Button`: Botón con variantes y tamaños
 - `ErrorMessage`: Componente para mostrar mensajes de error
 - `Icon`: Iconos del sistema
 
 ### Molecules
+
 Componentes que combinan átomos:
+
 - `FormField`: Campo de formulario con etiqueta y mensaje de error
 - `FilterTabs`: Selector de pestañas para filtrar contenido
 
 ### Organisms
+
 Componentes complejos que combinan moléculas:
+
 - `EntityCardGrid`: Grilla de tarjetas para mostrar entidades con acciones
 
 ## Estructura de Features
@@ -109,10 +119,12 @@ feature-name/
 El proyecto está en proceso de migración a esta estructura. Algunos componentes aún siguen la estructura antigua pero serán migrados gradualmente.
 
 ### Componentes ya migrados
+
 - ✅ `StatusFilter` → `FilterTabs`
 - ✅ `CrudCardList` → `EntityCardGrid`
 - ✅ `AdminDishes` → `DishManager`
 
 ### Componentes pendientes de migración
+
 - `AdminPromos` → `PromoManager`
-- `AdminDashboard` → `Dashboard` 
+- `AdminDashboard` → `Dashboard`

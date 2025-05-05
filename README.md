@@ -5,17 +5,20 @@ Este proyecto es una aplicación web para gestionar la carta y promociones de un
 ## Mejoras implementadas
 
 ### Estructura y organización del código
+
 - Centralización de tipos e interfaces en carpetas específicas
 - Componentes UI reutilizables para mejorar la coherencia
 - Sistema de manejo de errores unificado
 - Estructura de carpetas optimizada
 
 ### Calidad de código
+
 - Configuración de ESLint y Prettier
 - Tests unitarios con Vitest
 - Hooks pre-commit con Husky para verificar la calidad del código
 
 ### Componentes reutilizables
+
 - Componentes UI básicos (Button, FormField, ErrorMessage)
 - Tipos TypeScript mejorados y reutilizables
 - Utilidades para formato y manejo de errores
@@ -99,9 +102,9 @@ To learn more about the folder structure of an Astro project, refer to [our guid
 
 All commands are run from the root of the project, from a terminal:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
+| Command                | Action                                           |
+| :--------------------- | :----------------------------------------------- |
+| `pnpm install`         | Installs dependencies                            |
 | `pnpm dev`             | Starts local dev server at `localhost:4321`      |
 | `pnpm build`           | Build your production site to `./dist/`          |
 | `pnpm preview`         | Preview your build locally, before deploying     |

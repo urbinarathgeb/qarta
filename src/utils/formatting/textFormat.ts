@@ -5,6 +5,6 @@
  * @param no Texto a mostrar para false
  * @returns String formateado
  */
-export function formatBool(value?: boolean | null, yes: string = "Sí", no: string = "No"): string {
-    return value ? yes : no;
-} 
+export function formatBool(value?: boolean | null, yes: string = 'Sí', no: string = 'No'): string {
+  return value ? yes : no;
+}

@@ -22,4 +22,4 @@ Se ha migrado el antiguo componente `AdminDishes.tsx` al nuevo componente `DishM
 ### Próximos pasos:
 
 - Migrar completamente el componente `AdminDishes.tsx`
-- Actualizar las páginas que utilizan el componente antiguo 
+- Actualizar las páginas que utilizan el componente antiguo

@@ -1,11 +1,10 @@
 ---
-import Layout from "@/layouts/Layout.astro";
-import MenuSection from "@/components/menu/MenuSection.astro";
-import PromoHero from "@/components/menu/PromoHero.astro";
-import { fetchMenuData } from "@/lib/menuUtils";
+import Layout from '@/layouts/Layout.astro';
+import MenuSection from '@/components/menu/MenuSection.astro';
+import PromoHero from '@/components/menu/PromoHero.astro';
+import { fetchMenuData } from '@/lib/menuUtils';
 
-const { promos, dishesByCategory, enumCategory, error, sectionIcon } =
-  await fetchMenuData();
+const { promos, dishesByCategory, enumCategory, error, sectionIcon } = await fetchMenuData();
 ---
 
 <Layout>
@@ -15,8 +14,7 @@ const { promos, dishesByCategory, enumCategory, error, sectionIcon } =
       promos &&
         promos.length > 0 &&
         promos.map((promo) => {
-          const { image_url, title, subtitle, description, price, options } =
-            promo;
+          const { image_url, title, subtitle, description, price, options } = promo;
           return (
             <PromoHero
               image={image_url}
@@ -35,11 +33,7 @@ const { promos, dishesByCategory, enumCategory, error, sectionIcon } =
         let icon = sectionIcon[cat as keyof typeof sectionIcon];
         console.log(icon);
         return dishesByCategory[cat]?.length ? (
-          <MenuSection
-            title={cat}
-            dishes={dishesByCategory[cat] ?? []}
-            Icon={icon}
-          />
+          <MenuSection title={cat} dishes={dishesByCategory[cat] ?? []} Icon={icon} />
         ) : null;
       })
     };
