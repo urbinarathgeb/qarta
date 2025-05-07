@@ -1,2 +1,2 @@
 import MenuDisplay from './MenuDisplay';
-export default MenuDisplay; 
+export default MenuDisplay;

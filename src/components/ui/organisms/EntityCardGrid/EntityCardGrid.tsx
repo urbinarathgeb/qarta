@@ -120,12 +120,19 @@ function EntityCardGrid<T>({
         // Detecta si el item tiene campo 'available' o 'active'
         const isAvailable = (item as any).available ?? (item as any).active;
         const itemId = (item as any).id ?? idx;
-        const activeField = Object.prototype.hasOwnProperty.call(item, 'available') ? 'available' : 'active';
+        const activeField = Object.prototype.hasOwnProperty.call(item, 'available')
+          ? 'available'
+          : 'active';
 
         // Obtener campos primarios para mostrar prominentemente
-        const primaryFields = fields.filter(field => field.isPrimary);
-        const regularFields = fields.filter(field => !field.isPrimary && field.accessor !== 'available' && field.accessor !== 'active');
-        const statusField = fields.find(field => field.accessor === 'available' || field.accessor === 'active');
+        const primaryFields = fields.filter((field) => field.isPrimary);
+        const regularFields = fields.filter(
+          (field) =>
+            !field.isPrimary && field.accessor !== 'available' && field.accessor !== 'active'
+        );
+        const statusField = fields.find(
+          (field) => field.accessor === 'available' || field.accessor === 'active'
+        );
 
         return (
           <div
@@ -143,8 +150,8 @@ function EntityCardGrid<T>({
                   onEdit(item);
                 }}
                 className={clsx(
-                  "absolute top-2 right-2 z-10 w-8 h-8 flex items-center justify-center rounded-full transition-colors",
-                  darkTheme ? "text-gray-400 hover:text-white" : "text-gray-500 hover:bg-gray-100"
+                  'absolute top-2 right-2 z-10 w-8 h-8 flex items-center justify-center rounded-full transition-colors',
+                  darkTheme ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:bg-gray-100'
                 )}
                 title="Editar"
               >
@@ -169,12 +176,14 @@ function EntityCardGrid<T>({
             {/* Campos primarios (como título) */}
             {primaryFields.map((field) => (
               <div key={field.key} className={clsx('mb-1', field.className)}>
-                <h3 className={clsx("font-bold text-lg", darkTheme ? "text-white" : "text-gray-900")}>
+                <h3
+                  className={clsx('font-bold text-lg', darkTheme ? 'text-white' : 'text-gray-900')}
+                >
                   {field.formatter
                     ? field.formatter((item as any)[field.accessor])
                     : String((item as any)[field.accessor] ?? '-')}
                 </h3>
-                <p className={clsx("text-sm", darkTheme ? "text-gray-400" : "text-gray-500")}>
+                <p className={clsx('text-sm', darkTheme ? 'text-gray-400' : 'text-gray-500')}>
                   Categoría: {(item as any).category}
                 </p>
               </div>
@@ -183,7 +192,9 @@ function EntityCardGrid<T>({
             {/* Estado */}
             {onToggleActive && (
               <div className="flex items-center justify-between">
-                <p className={clsx("text-sm", darkTheme ? "text-white" : "text-gray-700")}>Estado:</p>
+                <p className={clsx('text-sm', darkTheme ? 'text-white' : 'text-gray-700')}>
+                  Estado:
+                </p>
                 <button
                   onClick={() => {
                     console.log('Botón de toggle clickeado para:', item);
@@ -191,12 +202,16 @@ function EntityCardGrid<T>({
                     onToggleActive(item);
                   }}
                   className={clsx(
-                    "inline-block w-20 py-2 rounded-full text-center text-xs font-bold",
+                    'inline-block w-20 py-2 rounded-full text-center text-xs font-bold',
                     isAvailable
-                      ? (darkTheme ? "bg-green-600" : "bg-green-100 text-green-800")
-                      : (darkTheme ? "bg-red-600" : "bg-gray-100 text-gray-600")
+                      ? darkTheme
+                        ? 'bg-green-600'
+                        : 'bg-green-100 text-green-800'
+                      : darkTheme
+                        ? 'bg-red-600'
+                        : 'bg-gray-100 text-gray-600'
                   )}
-                  title={isAvailable ? "Haz clic para desactivar" : "Haz clic para activar"}
+                  title={isAvailable ? 'Haz clic para desactivar' : 'Haz clic para activar'}
                 >
                   {isAvailable ? 'Activo' : 'Inactivo'}
                 </button>
@@ -214,10 +229,10 @@ function EntityCardGrid<T>({
                   field.hideOnMobile && 'hidden sm:flex'
                 )}
               >
-                <span className={clsx("text-sm", darkTheme ? "text-gray-400" : "text-gray-500")}>
+                <span className={clsx('text-sm', darkTheme ? 'text-gray-400' : 'text-gray-500')}>
                   {field.label}
                 </span>
-                <span className={clsx("font-semibold", darkTheme ? "text-white" : "text-gray-800")}>
+                <span className={clsx('font-semibold', darkTheme ? 'text-white' : 'text-gray-800')}>
                   {field.formatter
                     ? field.formatter((item as any)[field.accessor])
                     : String((item as any)[field.accessor] ?? '-')}
@@ -226,15 +241,13 @@ function EntityCardGrid<T>({
             ))}
 
             {/* Acciones personalizadas */}
-            {actions && (
-              <div className="mt-auto pt-4 flex gap-2">{actions(item)}</div>
-            )}
+            {actions && <div className="mt-auto pt-4 flex gap-2">{actions(item)}</div>}
 
             {/* Botón de edición */}
             {onEdit && !actions && (
               <div className="mt-auto pt-4 flex justify-end">
                 <Button
-                  variant={darkTheme ? "outline" : "primary"}
+                  variant={darkTheme ? 'outline' : 'primary'}
                   size="sm"
                   onClick={() => {
                     console.log('Botón Editar clickeado para:', item);

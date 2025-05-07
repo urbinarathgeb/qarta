@@ -128,7 +128,7 @@ El proyecto ha completado la migración de varios componentes a la nueva estruct
 ### Componentes oficiales actuales
 
 - `DishManager` - Gestión completa de platos en el panel administrativo
-- `PromoManager` - Gestión completa de promociones en el panel administrativo  
+- `PromoManager` - Gestión completa de promociones en el panel administrativo
 - `EntityCardGrid` - Visualización uniforme de colecciones de datos en tarjetas
 
 ### Componentes pendientes de migración

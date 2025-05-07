@@ -1,5 +1,4 @@
 ./src/components/admin/AdminDishes.tsx (reemplazado por DishManager)
 ./src/components/admin/AdminPromos.tsx (reemplazado por PromoManager)
-./src/components/admin/PromoTable.tsx (reemplazado por EntityCardGrid)
 ./src/lib/tailwindUtils.ts (no detectado en imports)
 ./src/lib/menuUtils.tsx (puede estar en uso parcial)

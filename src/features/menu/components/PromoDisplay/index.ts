@@ -1,2 +1,2 @@
 import PromoDisplay from './PromoDisplay';
-export default PromoDisplay; 
+export default PromoDisplay;

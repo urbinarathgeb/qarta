@@ -94,14 +94,22 @@ export function useCrudList<T = any>({
       isEdit,
       itemId: isEdit ? (editingItem as any).id : 'nuevo registro',
       tabla: table,
-      datos: itemData
+      datos: itemData,
     });
 
-    const dataToSave = isEdit ? { ...(editingItem as any), ...itemData } : itemData;
+    // Asegurarse de que editingItem no sea null antes de propagarlo
+    const baseData = isEdit && editingItem ? { ...editingItem } : {};
+    const dataToSave: Record<string, any> = { ...baseData, ...itemData };
+
     if (!isEdit && dataToSave[activeField] === undefined) dataToSave[activeField] = true;
     if (typeof dataToSave.price === 'string') dataToSave.price = Number(dataToSave.price);
 
-    console.log('Datos a guardar en Supabase:', dataToSave);
+    // Eliminar _sourceType antes de guardar, si existe
+    if (dataToSave._sourceType) {
+      delete dataToSave._sourceType;
+    }
+
+    console.log('Datos a guardar en Supabase (sin _sourceType):', dataToSave);
 
     try {
       let error;
@@ -123,6 +131,7 @@ export function useCrudList<T = any>({
         // La actualización ahora se manejará a través de la suscripción
         setShowForm(false);
         setEditingItem(null);
+        // No necesitamos llamar a fetchItems() aquí si la suscripción funciona correctamente
       }
     } catch (err) {
       setError('Error inesperado al guardar');

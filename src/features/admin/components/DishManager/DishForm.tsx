@@ -7,11 +7,7 @@ import { FormField } from '@/components/ui/molecules';
 /**
  * Formulario para crear y editar platos
  */
-const DishForm: React.FC<DishFormProps> = ({
-  initialValues = {},
-  onSave,
-  onCancel,
-}) => {
+const DishForm: React.FC<DishFormProps> = ({ initialValues = {}, onSave, onCancel }) => {
   const [name, setName] = useState(initialValues.name || '');
   const [description, setDescription] = useState(initialValues.description || '');
   const [price, setPrice] = useState(initialValues.price || 0);
@@ -53,7 +49,7 @@ const DishForm: React.FC<DishFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      console.log("Guardando plato:", {
+      console.log('Guardando plato:', {
         name: name.trim(),
         description: description.trim(),
         price: Number(price),
@@ -77,19 +73,14 @@ const DishForm: React.FC<DishFormProps> = ({
     }
   }
 
-  const categoryOptions = Object.values(DishCategory).map(cat => ({
+  const categoryOptions = Object.values(DishCategory).map((cat) => ({
     value: cat,
-    label: cat.charAt(0).toUpperCase() + cat.slice(1)
+    label: cat.charAt(0).toUpperCase() + cat.slice(1),
   }));
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <FormField
-        label="Nombre"
-        htmlFor="name"
-        error={errors.name}
-        required
-      >
+      <FormField label="Nombre" htmlFor="name" error={errors.name} required>
         <input
           id="name"
           type="text"
@@ -100,12 +91,7 @@ const DishForm: React.FC<DishFormProps> = ({
         />
       </FormField>
 
-      <FormField
-        label="Descripción"
-        htmlFor="description"
-        error={errors.description}
-        required
-      >
+      <FormField label="Descripción" htmlFor="description" error={errors.description} required>
         <textarea
           id="description"
           className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
@@ -115,12 +101,7 @@ const DishForm: React.FC<DishFormProps> = ({
         />
       </FormField>
 
-      <FormField
-        label="Precio"
-        htmlFor="price"
-        error={errors.price}
-        required
-      >
+      <FormField label="Precio" htmlFor="price" error={errors.price} required>
         <input
           id="price"
           type="number"
@@ -132,12 +113,7 @@ const DishForm: React.FC<DishFormProps> = ({
         />
       </FormField>
 
-      <FormField
-        label="Categoría"
-        htmlFor="category"
-        error={errors.category}
-        required
-      >
+      <FormField label="Categoría" htmlFor="category" error={errors.category} required>
         <select
           id="category"
           className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
@@ -145,7 +121,7 @@ const DishForm: React.FC<DishFormProps> = ({
           onChange={(e) => setCategory(e.target.value as DishCategory)}
         >
           <option value="">Selecciona una categoría</option>
-          {categoryOptions.map(option => (
+          {categoryOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -174,17 +150,15 @@ const DishForm: React.FC<DishFormProps> = ({
               alt="Vista previa"
               className="h-40 object-contain mx-auto"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=Error+de+imagen';
+                (e.target as HTMLImageElement).src =
+                  'https://via.placeholder.com/150?text=Error+de+imagen';
               }}
             />
           </div>
         )}
       </FormField>
 
-      <FormField
-        label="Disponibilidad"
-        htmlFor="available"
-      >
+      <FormField label="Disponibilidad" htmlFor="available">
         <div className="flex items-center">
           <input
             type="checkbox"
@@ -200,11 +174,7 @@ const DishForm: React.FC<DishFormProps> = ({
       </FormField>
 
       <div className="flex gap-3 justify-end mt-6">
-        <Button
-          variant="outline"
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
+        <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
           Cancelar
         </Button>
         <Button

@@ -64,7 +64,7 @@
   - `errorHandler.ts` → Reemplazado por `error/`
 - Eliminados componentes obsoletos:
   - `AdminDishes.tsx` → Completamente reemplazado por `DishManager`
-  - `AdminPromos.tsx` → Completamente reemplazado por `PromoManager` 
+  - `AdminPromos.tsx` → Completamente reemplazado por `PromoManager`
 - Actualizadas las importaciones para usar las nuevas rutas
 - Actualizada la documentación para reflejar la eliminación de componentes obsoletos
 
@@ -96,7 +96,7 @@ Para hacer el dashboard más dinámico e interactivo, se implementaron las sigui
   - Gestión de platos y promociones en un solo lugar
   - Interfaz moderna y responsiva
   - Mejor organización del espacio
-  
+
 #### 4. Componentes UI reutilizables
 
 - Se implementó el componente `Modal` para mostrar formularios sin cambiar de página

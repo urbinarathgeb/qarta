@@ -1,5 +1,33 @@
 // Funciones utilitarias para listas filtrables
+
+/**
+ * Tipo para representar los estados de filtro básicos
+ */
 export type FilterType = 'all' | 'active' | 'inactive';
+
+/**
+ * Estados válidos para los filtros de estado
+ */
+export type EstadoValor = 'activos' | 'no-activos';
+
+/**
+ * Categorías válidas para filtros
+ */
+export type CategoriaValor = 'pizza' | 'bebida' | 'cerveza' | 'postre' | 'pasta' | string;
+
+/**
+ * Tipos de filtros disponibles para el navbar y componentes filtrados
+ */
+export type FiltroTipo = 'todos' | 'estado' | 'categoria';
+
+/**
+ * Filtro completo utilizado en los componentes
+ * Definido de manera más flexible para evitar problemas de tipado estricto
+ */
+export interface Filtro {
+  tipo: FiltroTipo;
+  valor?: EstadoValor | CategoriaValor;
+}
 
 /**
  * Filtra una lista de items por un campo booleano ('active', 'available', etc.) y filtro visual.
@@ -19,9 +47,3 @@ export function filtrarPorEstado<T extends Record<string, any>>(
   if (filter === 'inactive') filtered = items.filter((i) => i[activeField] === false);
   return showForm ? items.filter((i) => i[activeField] !== false) : filtered;
 }
-
-// Exporta el tipo Filtro para usarlo en tus componentes
-export type Filtro =
-  | { tipo: 'todos' }
-  | { tipo: 'estado'; valor: 'activos' | 'no-activos' }
-  | { tipo: 'categoria'; valor: string };

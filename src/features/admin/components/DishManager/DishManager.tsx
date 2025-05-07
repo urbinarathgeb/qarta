@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { formatPriceCLP } from '@/utils/formatting';
 import { useCrudList } from '@/hooks/useCrudList';
-import { filtrarPorEstado as _filtrarPorEstado } from '@/lib/promoUtils';
-import type { Dish } from '@/types/dish';
+import type { Dish, DishCategory } from '@/types/dish';
 import type { FilterType } from '@/types/common';
 import { logError } from '@/utils/error';
-import { Button, ErrorMessage, FilterTabs } from '@/components/ui';
+import { Button, ErrorMessage, FilterTabs, Input } from '@/components/ui';
 import { Modal } from '@/components/ui/molecules';
 import { EntityCardGrid, type EntityCardField } from '@/components/ui/organisms';
 import DishForm from './DishForm';
@@ -22,14 +21,15 @@ interface DishManagerProps {
  */
 const DishManager: React.FC<DishManagerProps> = ({ filtro }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const {
     items: dishes,
     loading,
     error,
     editingItem,
-    filter,
-    setFilter,
+    filter: statusFilter,
+    setFilter: setStatusFilter,
     handleNew,
     handleEdit,
     handleSave,
@@ -41,57 +41,71 @@ const DishManager: React.FC<DishManagerProps> = ({ filtro }) => {
     activeField: 'available',
   });
 
-  // Utiliza el manejador de errores mejorado
   useEffect(() => {
     if (error) {
       logError(error, 'DishManager');
     }
   }, [error]);
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
+  const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingItem(null);
   };
-
   const handleNewDish = () => {
     handleNew();
     openModal();
   };
-
   const handleEditDish = (dish: Dish) => {
-    console.log('Editando plato:', dish);
     handleEdit(dish);
     openModal();
   };
-
   const handleSaveDish = (data: Partial<Dish>) => {
-    console.log('Guardando plato:', data);
     handleSave(data);
     closeModal();
   };
+  const handleToggleDishActive = (dish: Dish) => handleToggleActive(dish);
 
-  const handleToggleDishActive = (dish: Dish) => {
-    console.log('Cambiando estado del plato:', dish);
-    handleToggleActive(dish);
-  };
+  const processedDishes = useMemo(() => {
+    let filteredItems = [...dishes];
 
-  // Aplica el filtro recibido
-  const dishesFiltrados = dishes.filter((dish) => {
-    if (filtro.tipo === 'todos') return true;
-    if (filtro.tipo === 'estado') {
-      return filtro.valor === 'activos' ? dish.available : !dish.available;
+    if (searchTerm.trim() !== '') {
+      const lowerSearchTerm = searchTerm.trim().toLowerCase();
+      filteredItems = filteredItems.filter(
+        (dish) =>
+          dish.name.toLowerCase().includes(lowerSearchTerm) ||
+          (dish.description && dish.description.toLowerCase().includes(lowerSearchTerm))
+      );
+    } else {
+      if (filtro.tipo === 'categoria') {
+        filteredItems = filteredItems.filter((dish) => dish.category === filtro.valor);
+      }
     }
-    if (filtro.tipo === 'categoria') {
-      return dish.category === filtro.valor;
-    }
-    return true;
-  });
 
-  // Definición de campos para la card
+    if (statusFilter === 'active') {
+      filteredItems = filteredItems.filter((dish) => dish.available);
+    } else if (statusFilter === 'inactive') {
+      filteredItems = filteredItems.filter((dish) => !dish.available);
+    }
+
+    return filteredItems;
+  }, [dishes, searchTerm, filtro, statusFilter]);
+
+  const displayTitle = useMemo(() => {
+    if (searchTerm.trim() !== '') {
+      return `Resultados de búsqueda para: "${searchTerm.trim()}"`;
+    }
+    if (filtro.tipo === 'categoria' && filtro.valor) {
+      const categoryName = filtro.valor.charAt(0).toUpperCase() + filtro.valor.slice(1);
+      return `Categoría: ${categoryName}`;
+    }
+    if (filtro.tipo === 'estado' && filtro.valor) {
+      const statusName = filtro.valor.charAt(0).toUpperCase() + filtro.valor.slice(1);
+      return `Platos: ${statusName}`;
+    }
+    return 'Todos los Platos';
+  }, [searchTerm, filtro]);
+
   const dishFields: EntityCardField<Dish>[] = [
     { key: 'name', label: 'Nombre', accessor: 'name', isPrimary: true },
     { key: 'description', label: 'Descripción', accessor: 'description', hideOnMobile: true },
@@ -115,7 +129,6 @@ const DishManager: React.FC<DishManagerProps> = ({ filtro }) => {
     },
   ];
 
-  // Opciones de filtro para FilterTabs
   const filterOptions = [
     { value: 'all', label: 'Todos' },
     { value: 'active', label: 'Solo activos', colorClass: 'bg-green-600' },
@@ -126,26 +139,41 @@ const DishManager: React.FC<DishManagerProps> = ({ filtro }) => {
     <main className="min-h-screen bg-background font-serif py-8 w-full">
       {error && <ErrorMessage error={error} className="mb-4 mx-auto max-w-2xl" />}
 
-      <FilterTabs
-        options={filterOptions}
-        value={filter}
-        onChange={(value) => setFilter(value as FilterType)}
-      />
-
-      <div className="mb-8 flex justify-end">
-        <Button onClick={handleNewDish} leftIcon={<span>+</span>}>
-          Nuevo Plato
-        </Button>
+      <div className="w-full max-w-screen-2xl mx-auto px-4 mb-6">
+        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4">
+          <h1 className="text-2xl font-bold text-text">{displayTitle}</h1>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            <Input
+              type="text"
+              placeholder="Buscar platos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full sm:w-64"
+            />
+            <Button onClick={handleNewDish} leftIcon={<span>+</span>} className="w-full sm:w-auto">
+              Nuevo Plato
+            </Button>
+          </div>
+        </div>
+        <FilterTabs
+          options={filterOptions}
+          value={statusFilter}
+          onChange={(value) => setStatusFilter(value as FilterType)}
+        />
       </div>
 
       <div className="w-full max-w-screen-2xl mx-auto px-4">
         <EntityCardGrid
-          items={dishesFiltrados}
+          items={processedDishes}
           fields={dishFields}
           loading={loading}
           onEdit={handleEditDish}
           onToggleActive={handleToggleDishActive}
-          emptyMessage="No hay platos registrados."
+          emptyMessage={
+            searchTerm.trim() !== ''
+              ? 'No se encontraron platos para tu búsqueda.'
+              : 'No hay platos que coincidan con los filtros.'
+          }
           darkTheme={true}
         />
       </div>
@@ -156,11 +184,7 @@ const DishManager: React.FC<DishManagerProps> = ({ filtro }) => {
         onClose={closeModal}
         maxWidth="max-w-xl"
       >
-        <DishForm
-          initialValues={editingItem || {}}
-          onSave={handleSaveDish}
-          onCancel={closeModal}
-        />
+        <DishForm initialValues={editingItem || {}} onSave={handleSaveDish} onCancel={closeModal} />
       </Modal>
     </main>
   );
