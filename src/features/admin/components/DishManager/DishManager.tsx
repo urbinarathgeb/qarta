@@ -4,7 +4,7 @@ import { useCrudList } from '@/hooks/useCrudList';
 import type { Dish, DishCategory } from '@/types/dish';
 import type { FilterType } from '@/types/common';
 import { logError } from '@/utils/error';
-import { Button, ErrorMessage, FilterTabs, Input } from '@/components/ui';
+import { Button, ErrorMessage, FilterTabs } from '@/components/ui';
 import { Modal } from '@/components/ui/molecules';
 import { EntityCardGrid, type EntityCardField } from '@/components/ui/organisms';
 import DishForm from './DishForm';
@@ -143,13 +143,13 @@ const DishManager: React.FC<DishManagerProps> = ({ filtro }) => {
         <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4">
           <h1 className="text-2xl font-bold text-text">{displayTitle}</h1>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-            <Input
+            {/* <Input
               type="text"
               placeholder="Buscar platos..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
               className="w-full sm:w-64"
-            />
+            /> */}
             <Button onClick={handleNewDish} leftIcon={<span>+</span>} className="w-full sm:w-auto">
               Nuevo Plato
             </Button>
